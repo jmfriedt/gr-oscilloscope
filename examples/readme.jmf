@@ -1,0 +1,9 @@
+add vxi11 files in the lib/CMakeLists.txt
+
+list(APPEND oscilloscope_sources
+    oscilloscope_impl.cc
+vxi11/vxi11_clnt.c
+vxi11/vxi11_cmd.cc
+vxi11/vxi11_user.cc
+vxi11/vxi11_xdr.c
+)

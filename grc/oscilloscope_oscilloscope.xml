@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<block>
+  <name>oscilloscope</name>
+  <key>oscilloscope_oscilloscope</key>
+  <category>[oscilloscope]</category>
+  <import>import oscilloscope</import>
+  <make>oscilloscope.oscilloscope()</make>
+
+  <source>
+    <name>out1</name>
+    <type>float</type>
+  </source>
+  <source>
+    <name>out2</name>
+    <type>float</type>
+  </source>
+</block>
