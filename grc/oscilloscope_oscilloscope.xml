@@ -4,7 +4,35 @@
   <key>oscilloscope_oscilloscope</key>
   <category>[oscilloscope]</category>
   <import>import oscilloscope</import>
-  <make>oscilloscope.oscilloscope()</make>
+  <make>oscilloscope.oscilloscope($ip,$range,$rate,$duration)</make>
+  <callback>set_range($range)</callback>
+  <callback>set_rate($rate)</callback>
+  <callback>set_duration($duration)</callback>
+  <callback>set_ip($ip)</callback>
+
+  <param>
+    <name>IP</name>
+    <key>ip</key>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Range</name>
+    <key>range</key>
+    <type>real</type>
+  </param>
+
+  <param>
+    <name>Rate</name>
+    <key>rate</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Duration</name>
+    <key>duration</key>
+    <type>real</type>
+  </param>
 
   <source>
     <name>out1</name>

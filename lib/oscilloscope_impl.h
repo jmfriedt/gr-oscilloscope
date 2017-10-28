@@ -42,16 +42,23 @@ namespace gr {
      private:
       // Nothing to declare in this block.
 #ifdef VXI11
-  VXI11_CLINK   *dev;
+       VXI11_CLINK   *dev;
 #else
 //  char ch;short y;
-  int sockfd;
-  struct sockaddr_in adresse;
-  int longueur,result;
+       int sockfd;
+       struct sockaddr_in adresse;
+       int longueur,result;
 #endif
+       float _range,_duration;
+       int _rate;
+       char device_ip[16]; // IP @
 
      public:
-      oscilloscope_impl();
+      void set_range(float);
+      void set_rate(int);
+      void set_duration(float);
+      void set_ip(char*);
+      oscilloscope_impl(char*,float,int,float);
       ~oscilloscope_impl();
 
       // Where all the action really happens

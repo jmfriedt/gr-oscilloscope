@@ -46,7 +46,7 @@ namespace gr {
        * class. oscilloscope::oscilloscope::make is the public interface for
        * creating new instances.
        */
-      static sptr make();
+      static sptr make(char*,float,int,float);
     };
 
   } // namespace oscilloscope

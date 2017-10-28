@@ -50,48 +50,43 @@ namespace gr {
   namespace oscilloscope {
 
     oscilloscope::sptr
-    oscilloscope::make()
+    oscilloscope::make(char *ip,float range,int rate,float duration)
     {
       return gnuradio::get_initial_sptr
-        (new oscilloscope_impl());
+        (new oscilloscope_impl(ip,range,rate,duration));
     }
 
     /*
      * The private constructor
      */
-    oscilloscope_impl::oscilloscope_impl()
+    oscilloscope_impl::oscilloscope_impl(char *ip,float range,int rate,float duration)
       : gr::sync_block("oscilloscope",
               gr::io_signature::make(0, 0, 0),
-              gr::io_signature::make(2, 2, sizeof(float)))
+              gr::io_signature::make(2, 2, sizeof(float))),
+	      _range(range),_rate(rate),_duration(duration)
     {
 #ifdef VXI11
-     char  device_ip[25];
      char *device_name=NULL;
-     sprintf(device_ip,"169.254.202.240"); // Agilent 54855DSO
-     if (vxi11_open_device(&dev,device_ip,device_name)!=0) printf("erreur ouverture\n");
+     set_ip(ip); // "169.254.202.240"); // Agilent 54855DSO
+     if (vxi11_open_device(&dev,device_ip,device_name)!=0) printf("error opening\n");
         else printf("connect OK\n");
      char buffer[256];
      int buffer_length=256;
-     float sampleDuration=5e-7,samplingRate=1e10; // 1 GHz
-     int sampleSize;
-     sampleSize = (int)(sampleDuration * samplingRate);
      sprintf(buffer,"*IDN?");
      envoi(dev,buffer);
      relit(dev,buffer,buffer_length);
      printf("%s\n",buffer);
 
-	
      sprintf(buffer,"*CLS"); envoi(dev,buffer);
      sprintf(buffer,"*RST"); envoi(dev,buffer);
      sprintf(buffer,":SYSTEM:HEADER OFF"); envoi(dev,buffer);
 //   sprintf(buffer,":AUTOSCALE");envoi(dev,buffer); // + (sampleDuration));
      sprintf(buffer,":TRIGGER:EDGE:SOUCE CHANNEL1;SLOPE POSITIVE");envoi(dev,buffer); 
      sprintf(buffer,":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");envoi(dev,buffer);
-     sprintf(buffer,":TIMEBASE:REFERENCE LEFT;POSITION 0;RANGE %e",sampleDuration);envoi(dev,buffer);
-     sprintf(buffer,":CHANNEL1:RANGE .5;OFFSET 0.0");envoi(dev,buffer);
-     sprintf(buffer,":CHANNEL2:RANGE .5;OFFSET 0.0");envoi(dev,buffer);
+     set_range(range);
      sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
-     sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",samplingRate,sampleSize);envoi(dev,buffer);
+     set_range(rate);
+     set_duration(duration);
 // Right Click on sine wave on top of display, Setup Acquisition and see SamplingRate/MemDepth
 #else
      int longueur;
@@ -191,5 +186,36 @@ namespace gr {
       return noutput_items;
     }
 
+void oscilloscope_impl::set_ip(char *ip)
+{int k,cnt=0;;
+ for (k=0;k<strlen(ip);k++) {if (ip[k]=='.') cnt++;}
+ if (cnt==3) sprintf(device_ip,"%s",ip); 
+    else {printf("invalid IP @\n");sprintf(device_ip,"169.254.202.240");}
+ printf("IP address: %s -- check that the computer is on the same subnet\n",device_ip);
+}
+
+void oscilloscope_impl::set_duration(float duration)
+{char buffer[256];
+ printf("new duration: %f\n",duration);fflush(stdout);
+ sprintf(buffer,":TIMEBASE:REFERENCE LEFT;POSITION 0;RANGE %e",duration);envoi(dev,buffer);
+ _duration=duration;
+}
+
+void oscilloscope_impl::set_range(float range)
+{char buffer[256];
+ printf("new range: %f\n",range);fflush(stdout);
+ sprintf(buffer,":CHANNEL1:RANGE %e;OFFSET 0.0",range);envoi(dev,buffer);
+ sprintf(buffer,":CHANNEL2:RANGE %e;OFFSET 0.0",range);envoi(dev,buffer);
+ _range=range;
+}
+
+void oscilloscope_impl::set_rate(int rate)
+{char buffer[256];
+ int samplesize = (int)(_duration * (float)rate);
+ printf("new rate: %f\n",rate);fflush(stdout);
+ sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",rate,samplesize);
+ envoi(dev,buffer);
+ _rate=rate;
+}
   } /* namespace oscilloscope */
 } /* namespace gr */
