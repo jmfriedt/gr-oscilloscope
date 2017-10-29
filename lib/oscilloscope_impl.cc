@@ -190,7 +190,11 @@ void oscilloscope_impl::set_ip(char *ip)
 {int k,cnt=0;;
  for (k=0;k<strlen(ip);k++) {if (ip[k]=='.') cnt++;}
  if (cnt==3) sprintf(device_ip,"%s",ip); 
+#ifdef VXI11
     else {printf("invalid IP @\n");sprintf(device_ip,"169.254.202.240");}
+#else
+    else {printf("invalid IP @\n");sprintf(device_ip,"127.0.0.1");} // TCP server on lo
+#endif
  printf("IP address: %s -- check that the computer is on the same subnet\n",device_ip);
 }
 
