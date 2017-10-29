@@ -19,7 +19,6 @@
  */
 
 #define VXI11
-#define SIZE 80000
 //#define mydebug
 
 #ifdef HAVE_CONFIG_H
@@ -50,7 +49,7 @@ namespace gr {
   namespace oscilloscope {
 
     oscilloscope::sptr
-    oscilloscope::make(char *ip,float range,int rate,float duration)
+    oscilloscope::make(char *ip,float range,float rate,float duration)
     {
       return gnuradio::get_initial_sptr
         (new oscilloscope_impl(ip,range,rate,duration));
@@ -59,7 +58,7 @@ namespace gr {
     /*
      * The private constructor
      */
-    oscilloscope_impl::oscilloscope_impl(char *ip,float range,int rate,float duration)
+    oscilloscope_impl::oscilloscope_impl(char *ip,float range,float rate,float duration)
       : gr::sync_block("oscilloscope",
               gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(2, 2, sizeof(float))),
@@ -83,10 +82,11 @@ namespace gr {
 //   sprintf(buffer,":AUTOSCALE");envoi(dev,buffer); // + (sampleDuration));
      sprintf(buffer,":TRIGGER:EDGE:SOUCE CHANNEL1;SLOPE POSITIVE");envoi(dev,buffer); 
      sprintf(buffer,":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");envoi(dev,buffer);
+     _data_buffer=(char*)malloc(256);
      set_range(range);
-     sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
-     set_range(rate);
+     set_rate(rate);
      set_duration(duration);
+     sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
 // Right Click on sine wave on top of display, Setup Acquisition and see SamplingRate/MemDepth
 #else
      int longueur;
@@ -130,45 +130,42 @@ namespace gr {
      float tab2[2*noutput_items];
      long int k,val,offset;
 #ifdef VXI11
-     char buffer[SIZE];
-     int buffer_length=SIZE;
-     int res;
+     char buffer[256];
      sprintf(buffer,":DIGITIZE CHANNEL1,CHANNEL2\n");envoi(dev,buffer);
      sprintf(buffer,":WAVEFORM:SOURCE CHANNEL1");envoi(dev,buffer);
      //sprintf(buffer,":WAVEFORM:VIEW MAIN");envoi(dev,buffer);
      //sprintf(buffer,":ACQUIRE:COMPLETE 100");envoi(dev,buffer);
      sprintf(buffer,":WAVEFORM:FORMAT WORD;BYTEORDER LSBFIRST\n");envoi(dev,buffer);
      //sprintf(buffer,":WAVEFORM:FORMAT ASCII");envoi(dev,buffer);
-     sprintf(buffer,":WAVEFORM:DATA?");envoi(dev,buffer);
-     res=relit(dev,buffer,buffer_length);
-     if (buffer[0]!='#') printf("error in trace header\n"); //  printf("%c",buffer[0]);  // #
+     vxi11_send_and_receive(dev, "WAVEFORM:DATA?", _data_buffer, (2*_sample_size+30), 100*VXI11_READ_TIMEOUT); // extend timeout
+     if (_data_buffer[0]!='#') printf("error in trace header\n"); //  printf("%c",buffer[0]);  // #
      else
-       {offset=buffer[1]-'0'; 
+       {offset=_data_buffer[1]-'0'; 
 #ifdef mydebug
         printf("%d -> ",offset);
 #endif
-        for (k=0;((k<((res-offset-1)/2)) && (k<noutput_items));k++)  // rm # and header
-           tab1[k]=(float)(*(short*)(&buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
+        for (k=0;((k<_sample_size) && (k<noutput_items));k++)  // rm # and header
+           tab1[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
 //#ifdef mydebug
-        printf("CH1: res/2=%d noutput_items=%d\n",res/2,noutput_items);
+        printf("CH1: noutput_items=%d\n",noutput_items);
 //#endif
 
         sprintf(buffer,":WAVEFORM:SOURCE CHANNEL2");envoi(dev,buffer);
         sprintf(buffer,":WAVEFORM:VIEW MAIN");envoi(dev,buffer);
         sprintf(buffer,":WAVEFORM:FORMAT WORD;BYTEORDER LSBFIRST\n");envoi(dev,buffer);
 //      sprintf(buffer,":WAVEFORM:FORMAT ASCII");envoi(dev,buffer);
-        sprintf(buffer,":WAVEFORM:DATA?");envoi(dev,buffer);
-        res=relit(dev,buffer,buffer_length);
-        if (buffer[0]!='#') printf("error in trace header\n"); //  printf("%c",buffer[0]);  // #
+        vxi11_send_and_receive(dev, "WAVEFORM:DATA?", _data_buffer, (2*_sample_size+30), 100*VXI11_READ_TIMEOUT); // extend timeout
+        if (_data_buffer[0]!='#') 
+           printf("error in trace header\n"); //  printf("%c",buffer[0]);  // #
         else 
-          {offset=buffer[1]-'0';
+          {offset=_data_buffer[1]-'0';
 #ifdef mydebug
            printf("%d -> ",offset);
 #endif
-           for (k=0;((k<((res-offset-1)/2)) && (k<noutput_items));k++)  // rm # and header
-              tab2[k]=(float)(*(short*)(&buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
+           for (k=0;((k<_sample_size) && (k<noutput_items));k++)  // rm # and header
+              tab2[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
 #ifdef mydebug
-           printf("CH2: res/2=%d noutput_items=%d\n",res/2,noutput_items);
+           printf("CH2: noutput_items=%d\n",noutput_items);
 #endif // debug
           }
      }
@@ -200,6 +197,10 @@ void oscilloscope_impl::set_ip(char *ip)
 
 void oscilloscope_impl::set_duration(float duration)
 {char buffer[256];
+ _sample_size = (int)(duration * _rate);
+ printf("_sample_size=%d\n",_sample_size);
+ free(_data_buffer);
+ _data_buffer=(char*)malloc(8*_sample_size+30);
  printf("new duration: %f\n",duration);fflush(stdout);
  sprintf(buffer,":TIMEBASE:REFERENCE LEFT;POSITION 0;RANGE %e",duration);envoi(dev,buffer);
  _duration=duration;
@@ -213,11 +214,14 @@ void oscilloscope_impl::set_range(float range)
  _range=range;
 }
 
-void oscilloscope_impl::set_rate(int rate)
+void oscilloscope_impl::set_rate(float rate)
 {char buffer[256];
- int samplesize = (int)(_duration * (float)rate);
+ _sample_size = (int)(_duration * rate);
+ printf("_sample_size=%d\n",_sample_size);
+ free(_data_buffer);
+ _data_buffer=(char*)malloc(8*_sample_size+30);
  printf("new rate: %f\n",rate);fflush(stdout);
- sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",rate,samplesize);
+ sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",rate,_sample_size);
  envoi(dev,buffer);
  _rate=rate;
 }

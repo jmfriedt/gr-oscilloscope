@@ -49,16 +49,17 @@ namespace gr {
        struct sockaddr_in adresse;
        int longueur,result;
 #endif
-       float _range,_duration;
-       int _rate;
+       float _range,_duration,_rate;
+       int _sample_size;
        char device_ip[16]; // IP @
+       char *_data_buffer;
 
      public:
       void set_range(float);
-      void set_rate(int);
+      void set_rate(float);
       void set_duration(float);
       void set_ip(char*);
-      oscilloscope_impl(char*,float,int,float);
+      oscilloscope_impl(char*,float,float,float);
       ~oscilloscope_impl();
 
       // Where all the action really happens

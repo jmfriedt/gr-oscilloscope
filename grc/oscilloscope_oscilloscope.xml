@@ -25,7 +25,7 @@
   <param>
     <name>Rate</name>
     <key>rate</key>
-    <type>int</type>
+    <type>real</type>
   </param>
 
   <param>
