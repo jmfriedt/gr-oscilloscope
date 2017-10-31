@@ -83,11 +83,15 @@ namespace gr {
      sprintf(buffer,":TRIGGER:EDGE:SOUCE CHANNEL1;SLOPE POSITIVE");envoi(dev,buffer); 
      sprintf(buffer,":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");envoi(dev,buffer);
      _data_buffer=(char*)malloc(256);
+     _tab1=(float*)malloc(256);
+     _tab2=(float*)malloc(256);
      set_range(range);
      set_rate(rate);
      set_duration(duration);
      sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
 // Right Click on sine wave on top of display, Setup Acquisition and see SamplingRate/MemDepth
+     _num_values=0;  // amount of data sent from buffers
+     _noutput_position=0;
 #else
      int longueur;
      struct sockaddr_in adresse;
@@ -126,11 +130,13 @@ namespace gr {
       gr_vector_void_star &output_items)
     {float *out0 = (float *) output_items[0]; // 2 outputs
      float *out1 = (float *) output_items[1];
-     float tab1[2*noutput_items];
-     float tab2[2*noutput_items];
      long int k,val,offset;
 #ifdef VXI11
      char buffer[256];
+if (_num_values==0) // not enough data left in buffer -- reload
+    {printf("collecting new data\n");
+     _num_values=_sample_size;
+     _position=0;
      sprintf(buffer,":DIGITIZE CHANNEL1,CHANNEL2\n");envoi(dev,buffer);
      sprintf(buffer,":WAVEFORM:SOURCE CHANNEL1");envoi(dev,buffer);
      //sprintf(buffer,":WAVEFORM:VIEW MAIN");envoi(dev,buffer);
@@ -144,11 +150,8 @@ namespace gr {
 #ifdef mydebug
         printf("%d -> ",offset);
 #endif
-        for (k=0;((k<_sample_size) && (k<noutput_items));k++)  // rm # and header
-           tab1[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
-//#ifdef mydebug
-        printf("CH1: noutput_items=%d\n",noutput_items);
-//#endif
+        for (k=0;k<_sample_size;k++)  // rm # and header
+           _tab1[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
 
         sprintf(buffer,":WAVEFORM:SOURCE CHANNEL2");envoi(dev,buffer);
         sprintf(buffer,":WAVEFORM:VIEW MAIN");envoi(dev,buffer);
@@ -162,25 +165,31 @@ namespace gr {
 #ifdef mydebug
            printf("%d -> ",offset);
 #endif
-           for (k=0;((k<_sample_size) && (k<noutput_items));k++)  // rm # and header
-              tab2[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
-#ifdef mydebug
-           printf("CH2: noutput_items=%d\n",noutput_items);
-#endif // debug
+           for (k=0;k<_sample_size;k++)  // rm # and header
+              _tab2[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
           }
-     }
+     } // tab1 and tab2 now how the two-channel data
+    } // end of _num_values==0
 #else // VXI11
      val=htonl(noutput_items*2);
      write(sockfd,&val,sizeof(long int));
-     read(sockfd, tab1, sizeof(float)*noutput_items*2);
-     for (k=0;k<noutput_items;k++) {tab2[k]=tab1[2*k];tab1[k]=tab1[2*k+1];}
+     read(sockfd, _tab1, sizeof(float)*noutput_items*2);   // JMF : REVOIR CE READ QUI DOIT ALLER DANS DATA_BUFFER
+     for (k=0;k<noutput_items;k++) {_tab2[k]=_tab1[2*k];_tab1[k]=_tab1[2*k+1];}
 #endif
-     for (k=0;k<noutput_items;k++)
-          {out0[k]=tab1[k];
-           out1[k]=tab2[k]; 
+     for (k=0;((k<noutput_items) && (_position<_sample_size));k++)
+          {out0[k]=_tab1[_position];
+           out1[k]=_tab2[_position]; 
+           _num_values--;
+           _position++;
           }
+      if (_num_values==0) return(k); // only return what was left in the buffer
+#ifdef VXI11
+#endif
       // Tell runtime system how many output items we produced.
-      return noutput_items;
+#ifdef mydebug
+      printf("noutput_items=%d _noutput_position=%d _num_values=%d _position=%d\n",noutput_items,_noutput_position,_num_values,_position);
+#endif
+     return noutput_items;
     }
 
 void oscilloscope_impl::set_ip(char *ip)
@@ -200,7 +209,11 @@ void oscilloscope_impl::set_duration(float duration)
  _sample_size = (int)(duration * _rate);
  printf("_sample_size=%d\n",_sample_size);
  free(_data_buffer);
- _data_buffer=(char*)malloc(8*_sample_size+30);
+ free(_tab1);
+ free(_tab2);
+ _data_buffer=(char*)malloc(2*_sample_size+30);
+ _tab1=(float*)malloc(_sample_size*sizeof(float));
+ _tab2=(float*)malloc(_sample_size*sizeof(float));
  printf("new duration: %f\n",duration);fflush(stdout);
  sprintf(buffer,":TIMEBASE:REFERENCE LEFT;POSITION 0;RANGE %e",duration);envoi(dev,buffer);
  _duration=duration;
@@ -219,7 +232,11 @@ void oscilloscope_impl::set_rate(float rate)
  _sample_size = (int)(_duration * rate);
  printf("_sample_size=%d\n",_sample_size);
  free(_data_buffer);
- _data_buffer=(char*)malloc(8*_sample_size+30);
+ free(_tab1);
+ free(_tab2);
+ _data_buffer=(char*)malloc(2*_sample_size+30);
+ _tab1=(float*)malloc(_sample_size*sizeof(float));
+ _tab2=(float*)malloc(_sample_size*sizeof(float));
  printf("new rate: %f\n",rate);fflush(stdout);
  sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",rate,_sample_size);
  envoi(dev,buffer);

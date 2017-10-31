@@ -50,9 +50,12 @@ namespace gr {
        int longueur,result;
 #endif
        float _range,_duration,_rate;
+       float *_tab1,*_tab2;
        int _sample_size;
        char device_ip[16]; // IP @
        char *_data_buffer;
+       int _num_values,_position; // number of data left in buffer, and index in buffer
+       int _noutput_position;
 
      public:
       void set_range(float);
