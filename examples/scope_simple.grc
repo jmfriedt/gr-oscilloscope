@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.11'?>
+<?grc format='1' created='3.7.13'?>
 <flow_graph>
-  <timestamp>Thu Oct 19 10:40:08 2017</timestamp>
+  <timestamp>Mon Oct 23 15:19:07 2017</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -26,11 +26,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 8)</value>
+      <value>(8, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -73,12 +73,20 @@
       <value>True</value>
     </param>
     <param>
+      <key>sizing_mode</key>
+      <value>fixed</value>
+    </param>
+    <param>
       <key>thread_safe_setters</key>
       <value></value>
     </param>
     <param>
       <key>title</key>
       <value></value>
+    </param>
+    <param>
+      <key>placement</key>
+      <value>(0,0)</value>
     </param>
   </block>
   <block>
@@ -89,11 +97,38 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(16, 76)</value>
+      <value>(272, 12)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>duration</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1e-6</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(176, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -105,38 +140,22 @@
     </param>
     <param>
       <key>value</key>
-      <value>10e9</value>
+      <value>5e9</value>
     </param>
   </block>
   <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>append</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
+    <key>variable</key>
     <param>
       <key>comment</key>
       <value></value>
     </param>
     <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
       <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>/tmp/scope.bin</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 84)</value>
+      <value>(352, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -144,62 +163,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_file_sink_0</value>
+      <value>samples</value>
     </param>
     <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_float_to_complex</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(336, 88)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_float_to_complex_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
+      <key>value</key>
+      <value>int(duration*samp_rate)</value>
     </param>
   </block>
   <block>
@@ -222,7 +190,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(336, 4)</value>
+      <value>(144, 76)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -264,20 +232,28 @@
       <value></value>
     </param>
     <param>
+      <key>channels</key>
+      <value>4</value>
+    </param>
+    <param>
       <key>comment</key>
-      <value></value>
+      <value>RTE1054: 192.168.1.43</value>
     </param>
     <param>
       <key>affinity</key>
       <value></value>
     </param>
     <param>
+      <key>duration</key>
+      <value>duration</value>
+    </param>
+    <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 8)</value>
+      <value>(8, 80)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -288,12 +264,24 @@
       <value>oscilloscope_oscilloscope_0</value>
     </param>
     <param>
+      <key>ip</key>
+      <value>192.168.1.43</value>
+    </param>
+    <param>
       <key>maxoutbuf</key>
       <value>0</value>
     </param>
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>range</key>
+      <value>.2</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>samp_rate</value>
     </param>
   </block>
   <block>
@@ -328,11 +316,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(504, 4)</value>
+      <value>(296, 80)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -348,7 +336,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>qtgui_time_sink_x_0_0</value>
+      <value>qtgui_time_sink_x_1</value>
     </param>
     <param>
       <key>legend</key>
@@ -600,7 +588,7 @@
     </param>
     <param>
       <key>nconnections</key>
-      <value>2</value>
+      <value>4</value>
     </param>
     <param>
       <key>size</key>
@@ -609,6 +597,10 @@
     <param>
       <key>srate</key>
       <value>samp_rate</value>
+    </param>
+    <param>
+      <key>stemplot</key>
+      <value>False</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -660,20 +652,8 @@
     </param>
   </block>
   <connection>
-    <source_block_id>blocks_float_to_complex_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>oscilloscope_oscilloscope_0</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0</sink_block_id>
+    <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -685,14 +665,20 @@
   </connection>
   <connection>
     <source_block_id>oscilloscope_oscilloscope_0</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0</sink_block_id>
+    <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
     <source_key>1</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>oscilloscope_oscilloscope_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>1</sink_key>
+    <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>2</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>oscilloscope_oscilloscope_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>3</sink_key>
   </connection>
 </flow_graph>

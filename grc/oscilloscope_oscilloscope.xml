@@ -4,11 +4,12 @@
   <key>oscilloscope_oscilloscope</key>
   <category>[oscilloscope]</category>
   <import>import oscilloscope</import>
-  <make>oscilloscope.oscilloscope($ip,$range,$rate,$duration)</make>
+  <make>oscilloscope.oscilloscope($ip,$range,$rate,$duration,$channels)</make>
   <callback>set_range($range)</callback>
   <callback>set_rate($rate)</callback>
   <callback>set_duration($duration)</callback>
   <callback>set_ip($ip)</callback>
+  <callback>set_channels($channels)</callback>
 
   <param>
     <name>IP</name>
@@ -33,13 +34,16 @@
     <key>duration</key>
     <type>real</type>
   </param>
-
+  <param>
+    <name>Channels</name>
+    <key>channels</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+  <check>0 &lt; $channels</check>
   <source>
-    <name>out1</name>
+    <name>out</name>
     <type>float</type>
-  </source>
-  <source>
-    <name>out2</name>
-    <type>float</type>
+    <nports>$channels</nports>
   </source>
 </block>

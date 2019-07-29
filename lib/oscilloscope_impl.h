@@ -18,7 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#define VXI11
+// #define VXI11
 
 #ifndef INCLUDED_OSCILLOSCOPE_OSCILLOSCOPE_IMPL_H
 #define INCLUDED_OSCILLOSCOPE_OSCILLOSCOPE_IMPL_H
@@ -41,28 +41,30 @@ namespace gr {
     {
      private:
       // Nothing to declare in this block.
-#ifdef VXI11
+// #ifdef VXI11
        VXI11_CLINK   *dev;
-#else
-//  char ch;short y;
+// #else
        int sockfd;
        struct sockaddr_in adresse;
        int longueur,result;
-#endif
+// #endif
        float _range,_duration,_rate;
-       float *_tab1,*_tab2;
+       float *_tab1,*_tab2,*_tab3,*_tab4;
        int _sample_size;
        char device_ip[16]; // IP @
-       char *_data_buffer;
+       char *_data_buffer=NULL;
        int _num_values,_position; // number of data left in buffer, and index in buffer
        int _noutput_position;
+       int _channels;
+       char _vxi11;    // select TCP/IP server if @==127.0.0.1, VXI11 otherwise
 
      public:
       void set_range(float);
       void set_rate(float);
       void set_duration(float);
       void set_ip(char*);
-      oscilloscope_impl(char*,float,float,float);
+      void set_channels(int);
+      oscilloscope_impl(char*,float,float,float,int);
       ~oscilloscope_impl();
 
       // Where all the action really happens
