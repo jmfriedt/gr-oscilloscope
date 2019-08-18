@@ -289,6 +289,12 @@ void oscilloscope_impl::set_duration(float duration)
  else
     _sample_size = 8192;
  printf("_sample_size=%d\n",_sample_size);
+ _data_buffer=(char*)realloc(_data_buffer,2*_sample_size+100);
+ _tab1=(float*)realloc(_tab1,_sample_size*sizeof(float));
+ _tab2=(float*)realloc(_tab2,_sample_size*sizeof(float));
+ _tab3=(float*)realloc(_tab3,_sample_size*sizeof(float));
+ _tab4=(float*)realloc(_tab4,_sample_size*sizeof(float));
+/*
  if (_data_buffer!=NULL)
    {free(_data_buffer);
     free(_tab1);
@@ -301,6 +307,7 @@ void oscilloscope_impl::set_duration(float duration)
  _tab2=(float*)malloc(_sample_size*sizeof(float));
  _tab3=(float*)malloc(_sample_size*sizeof(float));
  _tab4=(float*)malloc(_sample_size*sizeof(float));
+*/
  printf("new duration: %f\n",duration);fflush(stdout);
  _duration=duration;
 }
@@ -346,6 +353,13 @@ void oscilloscope_impl::set_rate(float rate)
  else
     _sample_size = 8192;
  printf("_sample_size=%d\n",_sample_size);
+// If  ptr  is  NULL,  then  the call is equivalent to malloc(size), for all values of size
+ _data_buffer=(char*)realloc(_data_buffer,2*_sample_size+100);
+ _tab1=(float*)realloc(_tab1,_sample_size*sizeof(float));
+ _tab2=(float*)realloc(_tab2,_sample_size*sizeof(float));
+ _tab3=(float*)realloc(_tab3,_sample_size*sizeof(float));
+ _tab4=(float*)realloc(_tab4,_sample_size*sizeof(float));
+/*
  if (_data_buffer!=NULL)
    {free(_data_buffer);
     free(_tab1);
@@ -358,6 +372,7 @@ void oscilloscope_impl::set_rate(float rate)
  _tab2=(float*)malloc(_sample_size*sizeof(float));
  _tab3=(float*)malloc(_sample_size*sizeof(float));
  _tab4=(float*)malloc(_sample_size*sizeof(float));
+*/
  printf("new rate: %f\n",rate);fflush(stdout);
  _rate=rate;
 }
