@@ -33,7 +33,7 @@ int main()
   clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &addrlen);
   printf("%s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
   recv(clientfd, &channels, sizeof(long), 0);channels=ntohl(channels);
-  printf("%d channels\n",channels);
+  printf("%ld channels\n",channels);
   while (taille!=-1)
     {recv(clientfd, &taille, sizeof(long), 0);
      taille=ntohl(taille);
