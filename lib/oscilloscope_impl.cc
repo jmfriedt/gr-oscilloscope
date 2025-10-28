@@ -1,21 +1,8 @@
 /* -*- c++ -*- */
-/* 
- * Copyright 2017 <+YOU OR YOUR COMPANY+>.
- * 
- * This is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- * 
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+/*
+ * Copyright 2025 JM Friedt (jmfriedt@femto-st.fr).
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 //#define VXI11
@@ -52,8 +39,7 @@ namespace gr {
     oscilloscope::sptr
     oscilloscope::make(char *ip,float range,float rate,float duration,int channels)
     {
-      return gnuradio::get_initial_sptr
-        (new oscilloscope_impl(ip,range,rate,duration,channels));
+      return gnuradio::make_block_sptr<oscilloscope_impl>(ip,range,rate,duration,channels);
     }
 
     /*

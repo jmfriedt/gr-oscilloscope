@@ -1,3 +1,5 @@
+#include <sys/types.h>
+
 /* vxi11_user.h
  * Copyright (C) 2006 Steve D. Sharples
  *

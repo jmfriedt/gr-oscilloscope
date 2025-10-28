@@ -1,0 +1,57 @@
+id: oscilloscope_oscilloscope
+label: oscilloscope
+category: '[oscilloscope]'
+
+templates:
+  imports: from gnuradio import oscilloscope
+  make: oscilloscope.oscilloscope(${ip},${range},${rate},${duration},${channels})
+  callbacks:
+   - set_range(${range})
+   - set_rate(${rate})
+   - set_duration(${duration})
+   - set_ip(${ip})
+   - set_channels(${channels})
+
+#  Make one 'parameters' list entry for every parameter you want settable from the GUI.
+#     Keys include:
+#     * id (makes the value accessible as keyname, e.g. in the make entry)
+#     * label (label shown in the GUI)
+#     * dtype (e.g. int, float, complex, byte, short, xxx_vector, ...)
+#     * default
+parameters:
+- id: ip
+  label: IP
+  dtype: string
+  default: 127.0.0.1
+- id: range
+  label: Range
+  dtype: real
+  default: 1.
+- id: rate
+  label: Rate
+  dtype: real
+  default: 1000000
+- id: duration
+  label: Duration
+  dtype: real
+  default: 0.01
+- id: channels
+  label: Channels
+  dtype: int
+  default: 1
+
+outputs:
+- label: out
+  domain: stream
+  dtype: float
+  vlen: $channels
+
+asserts:
+ - ${ channels > 0 }
+
+documentation: |-
+    The gr-oscillope provides means to collect samples from an oscilloscope and stream to a GNU Radio flowchart. While a radiofrequency grade oscilloscope provides utmost bandwidth, the datasteam is obviously not continuous due to the limited communication bandwidth, but the application is well suited when comparing data collected on multiple synchronous channels of an oscilloscope, e.g. for RADAR applications.
+
+#  'file_format' specifies the version of the GRC yml format used in the file
+#  and should usually not be changed.
+file_format: 1
