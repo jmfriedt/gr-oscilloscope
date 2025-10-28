@@ -51,7 +51,8 @@ outputs:
 - label: out
   domain: stream
   dtype: float
-  vlen: ${channels}
+  multiplicity: ${ channels }
+
 
 asserts:
  - ${ channels > 0 }

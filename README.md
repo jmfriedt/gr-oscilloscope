@@ -16,5 +16,16 @@ tcp_server.c -lm``) and execute (``./examples/tcp_server``) to connect the serve
 the localhost. TCP/IP dummy data communication is activated by selecting as IP address
 of the gr-oscilloscope "oscilloscope" block 127.0.0.1.
 
-<img src="examples/gnuradio3p7output.png" alt="gr-oscilloscope screenshot with dummy source" width=600>
+<img src="examples/scope_simple.png" alt="gr-oscilloscope screenshot with dummy source" width=600>
 
+## Troubleshooting
+
+If getting an error message when executing such as
+```
+ImportError: libgnuradio-oscilloscope.so.1.0.0: cannot open shared object file: No such file or directory
+```
+make sure to
+```
+export LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu
+```
+in the terminal used to launch GNU Radio before running ``gnuradio-companion``
