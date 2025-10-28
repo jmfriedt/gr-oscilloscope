@@ -7,7 +7,7 @@
 
 //#define VXI11
 #define mydebug
-#define rohdeschwarz
+//#define rohdeschwarz
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -37,19 +37,19 @@ namespace gr {
   namespace oscilloscope {
 
     oscilloscope::sptr
-    oscilloscope::make(char *ip,float range,float rate,float duration,int channels)
+    oscilloscope::make(char *ip,float range,float rate,float duration,int channels,int type)
     {
-      return gnuradio::make_block_sptr<oscilloscope_impl>(ip,range,rate,duration,channels);
+      return gnuradio::make_block_sptr<oscilloscope_impl>(ip,range,rate,duration,channels,type);
     }
 
     /*
      * The private constructor
      */
-    oscilloscope_impl::oscilloscope_impl(char *ip,float range,float rate,float duration,int channels)
+    oscilloscope_impl::oscilloscope_impl(char *ip,float range,float rate,float duration,int channels,int type)
       : gr::sync_block("oscilloscope",
               gr::io_signature::make(0, 0, 0),
               gr::io_signature::make(1, 4, sizeof(float))), // min max channels
-	      _range(range),_rate(rate),_duration(duration),_channels(channels)
+	      _range(range),_rate(rate),_duration(duration),_channels(channels),_type(type)
     {
 //#ifdef VXI11
      char *device_name=NULL;
@@ -79,8 +79,9 @@ namespace gr {
         relit(dev,buffer,buffer_length);
         printf("%s\n",buffer);
 
-#ifdef agilent
-        sprintf(buffer,"*CLS"); envoi(dev,buffer);
+// #ifdef agilent
+if (_type==agilent)
+{       sprintf(buffer,"*CLS"); envoi(dev,buffer);
         sprintf(buffer,"*RST"); envoi(dev,buffer);
         sprintf(buffer,":SYSTEM:HEADER OFF"); envoi(dev,buffer);
 //        sprintf(buffer,":AUTOSCALE");envoi(dev,buffer); // + (sampleDuration));
@@ -88,7 +89,8 @@ namespace gr {
         sprintf(buffer,":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");envoi(dev,buffer);
         sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
 // Right Click on sine wave on top of display, Setup Acquisition and see SamplingRate/MemDepth
-#endif
+}
+//#endif
         set_range(range);
         set_rate(rate);
         set_duration(duration);
@@ -105,7 +107,7 @@ namespace gr {
        longueur = sizeof(adresse);
        connect(sockfd, (struct sockaddr *)&adresse, longueur);
        longueur=htonl(_channels);
-       write(sockfd,&longueur,sizeof(long)); // number of channels
+       write(sockfd,&longueur,sizeof(int)); // number of channels
       }   // TCP/IP
       _num_values=0;  // amount of data sent from buffers
 // #endif
@@ -122,11 +124,13 @@ namespace gr {
      printf("Bye\n");
      if (_vxi11==1)
        {
-#ifdef agilent
-        sprintf(buffer,":CHANNEL1:DISPLAY ON"); envoi(dev,buffer);
+//#ifdef agilent
+if (_type==agilent)
+{       sprintf(buffer,":CHANNEL1:DISPLAY ON"); envoi(dev,buffer);
         sprintf(buffer,":CHANNEL2:DISPLAY ON"); envoi(dev,buffer);
         sprintf(buffer,":TRIGGER:SWEEP AUTO"); envoi(dev,buffer);
-#endif
+}
+//#endif
        }
 //#else
      else
@@ -150,7 +154,7 @@ namespace gr {
      char mystring[256];
      char buffer[256];
      
-     printf("channels: %d\n",output_items.size()); // contient le nombre de canaux
+     printf("channels: %ld\n",output_items.size()); // contient le nombre de canaux
 //#ifdef VXI11
      if (_num_values==0) // not enough data left in buffer -- reload
        {printf("collecting new data: %d\n",_sample_size);
@@ -158,8 +162,9 @@ namespace gr {
         _position=0;
         if (_vxi11==1)
           {
-#ifdef agilent
-           sprintf(buffer,":DIGITIZE CHANNEL1,CHANNEL2\n");envoi(dev,buffer);
+//#ifdef agilent
+if (_type==agilent)
+{          sprintf(buffer,":DIGITIZE CHANNEL1,CHANNEL2\n");envoi(dev,buffer);
            sprintf(buffer,":WAVEFORM:SOURCE CHANNEL1");envoi(dev,buffer);
      //      sprintf(buffer,":WAVEFORM:VIEW MAIN");envoi(dev,buffer);
      //      sprintf(buffer,":ACQUIRE:COMPLETE 100");envoi(dev,buffer);
@@ -170,7 +175,7 @@ namespace gr {
            else
              {offset=_data_buffer[1]-'0'; 
 #ifdef mydebug
-              printf("%d -> ",offset);
+              printf("%ld -> ",offset);
 #endif
               for (k=0;k<_sample_size;k++)  // rm # and header
                  _tab1[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
@@ -185,15 +190,17 @@ namespace gr {
               else 
                  {offset=_data_buffer[1]-'0';
 #ifdef mydebug
-                  printf("%d -> ",offset);
+                  printf("%ld -> ",offset);
 #endif
                   for (k=0;k<_sample_size;k++)  // rm # and header
                      _tab2[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
                  }
              } // tab1 and tab2 now how the two-channel data
-#endif
-#ifdef rohdeschwarz
-           sprintf(buffer,"FORM:DATA INT,16\n");envoi(dev,buffer); // LSB first by default
+//#endif
+}
+//#ifdef rohdeschwarz
+if (_type==rohdeschwarz)
+{          sprintf(buffer,"FORM:DATA INT,16\n");envoi(dev,buffer); // LSB first by default
            sprintf(buffer,"RUNSINGLE\n");envoi(dev,buffer);
            sprintf(buffer,"*OPC?"); envoi(dev,buffer); relit(dev,buffer,256);
 
@@ -205,7 +212,7 @@ namespace gr {
               else 
                 {offset=_data_buffer[1]-'0';       // ASCII -> dec
 #ifdef mydebug
-                 printf("#ok => skipping %d chars ; ",offset);
+                 printf("#ok => skipping %ld chars ; ",offset);
 #endif
                 }
               for (k=0;k<_sample_size;k++)  // rm # and header
@@ -215,7 +222,7 @@ namespace gr {
                  if (chan_count==4) _tab4[k]=(float)(*(short*)(&_data_buffer[2*k+offset+2]))/65536.; // valid only on Intel/LE
                 }
              } // end of chan_count
-#endif
+} // #endif
 // #else // VXI11 -> mode tcp server
           } 
      else
@@ -252,9 +259,14 @@ namespace gr {
      return noutput_items;
     }
 
+void oscilloscope_impl::set_type(int type)
+{if (type==0) _vxi11=0; else _vxi11=1;
+ _type=type;
+}
+
 void oscilloscope_impl::set_ip(char *ip)
 {int k,cnt=0;;
- for (k=0;k<strlen(ip);k++) {if (ip[k]=='.') cnt++;}
+ for (k=0;k<(int)strlen(ip);k++) {if (ip[k]=='.') cnt++;}
  if (cnt==3) sprintf(device_ip,"%s",ip); 
     else {printf("invalid IP @\n");sprintf(device_ip,"127.0.0.1");} // TCP server on lo
  printf("IP address: %s -- check that the computer is on the same subnet\n",device_ip);
@@ -264,13 +276,17 @@ void oscilloscope_impl::set_duration(float duration)
 {char buffer[256];
  if (_vxi11==1)
     {_sample_size = (int)(duration * _rate);
-#ifdef agilent
-     sprintf(buffer,":TIMEBASE:REFERENCE LEFT;POSITION 0;RANGE %e",duration);envoi(dev,buffer);
-#endif
-#ifdef rohdeschwarz
+//#ifdef agilent
+if (_type==agilent)
+    {sprintf(buffer,":TIMEBASE:REFERENCE LEFT;POSITION 0;RANGE %e",duration);envoi(dev,buffer);
+    }
+//#endif
+//#ifdef rohdeschwarz
+if (_type==rohdeschwarz)
 // Defines the time of one acquisition, that is the time across the 10 divisions
-     sprintf(buffer,"TIM:RANGE %f\n",duration);envoi(dev,buffer);     // of the diagram:
-#endif
+    {sprintf(buffer,"TIM:RANGE %f\n",duration);envoi(dev,buffer);     // of the diagram:
+    }
+//#endif
     }
  else
     _sample_size = 8192;
@@ -303,16 +319,20 @@ void oscilloscope_impl::set_range(float range)
  printf("new range: %e\n",range);fflush(stdout);
  if (_vxi11==1)
    {
-#ifdef agilent
-    sprintf(buffer,":CHANNEL1:RANGE %e;OFFSET 0.0",range);envoi(dev,buffer);
+//#ifdef agilent
+if (_type==agilent)
+{   sprintf(buffer,":CHANNEL1:RANGE %e;OFFSET 0.0",range);envoi(dev,buffer);
     sprintf(buffer,":CHANNEL2:RANGE %e;OFFSET 0.0",range);envoi(dev,buffer);
-#endif
-#ifdef rohdeschwarz
-    sprintf(buffer,"CHAN1:SCAL %f\n",range);envoi(dev,buffer); // RANG is not working ?!
-    if (_channels>=2) sprintf(buffer,"CHAN2:SCAL %f\n",range);envoi(dev,buffer);
-    if (_channels>=3) sprintf(buffer,"CHAN3:SCAL %f\n",range);envoi(dev,buffer);
-    if (_channels>=4) sprintf(buffer,"CHAN4:SCAL %f\n",range);envoi(dev,buffer);
-#endif
+}
+//#endif
+//#ifdef rohdeschwarz
+if (_type==rohdeschwarz)
+{   sprintf(buffer,"CHAN1:SCAL %f\n",range);envoi(dev,buffer); // RANG is not working ?!
+    if (_channels>=2) {sprintf(buffer,"CHAN2:SCAL %f\n",range);envoi(dev,buffer);}
+    if (_channels>=3) {sprintf(buffer,"CHAN3:SCAL %f\n",range);envoi(dev,buffer);}
+    if (_channels>=4) {sprintf(buffer,"CHAN4:SCAL %f\n",range);envoi(dev,buffer);}
+}
+//#endif
    }
  _range=range;
 }
@@ -326,15 +346,19 @@ void oscilloscope_impl::set_rate(float rate)
 {char buffer[256];
  if (_vxi11==1)
     {_sample_size = (int)(_duration * rate);
-#ifdef agilent
-     sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",rate,_sample_size);
+//#ifdef agilent
+if (_type==agilent)
+{    sprintf(buffer,":ACQUIRE:MODE RTIME;AVERAGE OFF;SRATE %e;POINTS %d",rate,_sample_size);
      envoi(dev,buffer);
-#endif
-#ifdef rohdeschwarz
+}
+//#endif
+//#ifdef rohdeschwarz
 // Defines the time of one acquisition, that is the time across the 10 divisions
-     sprintf(buffer,"ACQ:SRATE %f\n",rate);
+if (_type==rohdeschwarz)
+{    sprintf(buffer,"ACQ:SRATE %f\n",rate);
      envoi(dev,buffer);
-#endif
+}
+//#endif
     }
  else
     _sample_size = 8192;

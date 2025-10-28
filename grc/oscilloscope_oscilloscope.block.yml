@@ -4,13 +4,14 @@ category: '[oscilloscope]'
 
 templates:
   imports: from gnuradio import oscilloscope
-  make: oscilloscope.oscilloscope(${ip},${range},${rate},${duration},${channels})
+  make: oscilloscope.oscilloscope(${ip},${range},${rate},${duration},${channels},${type})
   callbacks:
    - set_range(${range})
    - set_rate(${rate})
    - set_duration(${duration})
    - set_ip(${ip})
    - set_channels(${channels})
+   - set_type(${type})
 
 #  Make one 'parameters' list entry for every parameter you want settable from the GUI.
 #     Keys include:
@@ -39,6 +40,12 @@ parameters:
   label: Channels
   dtype: int
   default: 1
+- id: type
+  label: Oscilloscope Type
+  dtype: int
+  default: 0
+  options: [0, 1, 2]
+  option_labels: ["TCP/IP","Rohde & Scharz","Agilent"]
 
 outputs:
 - label: out

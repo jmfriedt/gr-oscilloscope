@@ -1,0 +1,18 @@
+title: gr-oscillscope
+version: 1.0
+brief: Oscilloscope interface for GNU Radio
+tags: # Tags are arbitrary, but look at CGRAN what other authors are using
+  - oscilloscope
+author:
+  - Jean-Michel FRIEDT <jmfriedt@femto-st.fr>
+copyright_owner:
+  - Copyright Owner 1
+license:
+gr_supported_version:
+  - 3.10
+repo: # Put the URL of the repository here
+website: # If you have a separate project website, put it here
+#icon: # Put a URL to a square image here that will be used as an icon
+description: |-
+  The gr-oscillope provides means to collect samples from an oscilloscope and stream to a GNU Radio flowchart. While a radiofrequency grade oscilloscope provides utmost bandwidth, the datasteam is obviously not continuous due to the limited communication bandwidth, but the application is well suited when comparing data collected on multiple synchronous channels of an oscilloscope, e.g. for RADAR applications.
+file_format: 1

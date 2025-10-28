@@ -16,7 +16,7 @@
 /* BINDTOOL_GEN_AUTOMATIC(0) */
 /* BINDTOOL_USE_PYGCCXML(0) */
 /* BINDTOOL_HEADER_FILE(oscilloscope.h) */
-/* BINDTOOL_HEADER_FILE_HASH(ab0875022e8e6489f13649195ee70095) */
+/* BINDTOOL_HEADER_FILE_HASH(2113bda72819d9ad8f48af686565b908) */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -37,7 +37,7 @@ void bind_oscilloscope(py::module &m) {
              std::shared_ptr<oscilloscope>>(m, "oscilloscope", D(oscilloscope))
 
       .def(py::init(&oscilloscope::make), py::arg("arg0"), py::arg("arg1"),
-           py::arg("arg2"), py::arg("arg3"), py::arg("arg4"),
+           py::arg("arg2"), py::arg("arg3"), py::arg("arg4"), py::arg("arg5"),
            D(oscilloscope, make))
 
       ;

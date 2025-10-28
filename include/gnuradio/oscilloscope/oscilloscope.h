@@ -32,7 +32,7 @@ public:
      * class. oscilloscope::oscilloscope::make is the public interface for
      * creating new instances.
      */
-    static sptr make(char*,float,float,float,int);
+    static sptr make(char*,float,float,float,int,int);
 };
 
 } // namespace oscilloscope
