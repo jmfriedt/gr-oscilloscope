@@ -44,7 +44,7 @@ outputs:
 - label: out
   domain: stream
   dtype: float
-  vlen: $channels
+  vlen: ${channels}
 
 asserts:
  - ${ channels > 0 }
