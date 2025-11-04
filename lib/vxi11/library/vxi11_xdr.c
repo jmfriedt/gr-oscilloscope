@@ -8,8 +8,6 @@
 bool_t
 xdr_Device_Link (XDR *xdrs, Device_Link *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_long (xdrs, objp))
 		 return FALSE;
 	return TRUE;
@@ -18,8 +16,6 @@ xdr_Device_Link (XDR *xdrs, Device_Link *objp)
 bool_t
 xdr_Device_AddrFamily (XDR *xdrs, Device_AddrFamily *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_enum (xdrs, (enum_t *) objp))
 		 return FALSE;
 	return TRUE;
@@ -28,8 +24,6 @@ xdr_Device_AddrFamily (XDR *xdrs, Device_AddrFamily *objp)
 bool_t
 xdr_Device_Flags (XDR *xdrs, Device_Flags *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_long (xdrs, objp))
 		 return FALSE;
 	return TRUE;
@@ -38,8 +32,6 @@ xdr_Device_Flags (XDR *xdrs, Device_Flags *objp)
 bool_t
 xdr_Device_ErrorCode (XDR *xdrs, Device_ErrorCode *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_long (xdrs, objp))
 		 return FALSE;
 	return TRUE;
@@ -48,8 +40,6 @@ xdr_Device_ErrorCode (XDR *xdrs, Device_ErrorCode *objp)
 bool_t
 xdr_Device_Error (XDR *xdrs, Device_Error *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_ErrorCode (xdrs, &objp->error))
 		 return FALSE;
 	return TRUE;
@@ -113,8 +103,6 @@ xdr_Create_LinkParms (XDR *xdrs, Create_LinkParms *objp)
 bool_t
 xdr_Create_LinkResp (XDR *xdrs, Create_LinkResp *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_ErrorCode (xdrs, &objp->error))
 		 return FALSE;
 	 if (!xdr_Device_Link (xdrs, &objp->lid))
@@ -129,8 +117,6 @@ xdr_Create_LinkResp (XDR *xdrs, Create_LinkResp *objp)
 bool_t
 xdr_Device_WriteParms (XDR *xdrs, Device_WriteParms *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_Link (xdrs, &objp->lid))
 		 return FALSE;
 	 if (!xdr_u_long (xdrs, &objp->io_timeout))
@@ -147,8 +133,6 @@ xdr_Device_WriteParms (XDR *xdrs, Device_WriteParms *objp)
 bool_t
 xdr_Device_WriteResp (XDR *xdrs, Device_WriteResp *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_ErrorCode (xdrs, &objp->error))
 		 return FALSE;
 	 if (!xdr_u_long (xdrs, &objp->size))
@@ -226,8 +210,6 @@ xdr_Device_ReadParms (XDR *xdrs, Device_ReadParms *objp)
 bool_t
 xdr_Device_ReadResp (XDR *xdrs, Device_ReadResp *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_ErrorCode (xdrs, &objp->error))
 		 return FALSE;
 	 if (!xdr_long (xdrs, &objp->reason))
@@ -240,8 +222,6 @@ xdr_Device_ReadResp (XDR *xdrs, Device_ReadResp *objp)
 bool_t
 xdr_Device_ReadStbResp (XDR *xdrs, Device_ReadStbResp *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_ErrorCode (xdrs, &objp->error))
 		 return FALSE;
 	 if (!xdr_u_char (xdrs, &objp->stb))
@@ -252,8 +232,6 @@ xdr_Device_ReadStbResp (XDR *xdrs, Device_ReadStbResp *objp)
 bool_t
 xdr_Device_GenericParms (XDR *xdrs, Device_GenericParms *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_Link (xdrs, &objp->lid))
 		 return FALSE;
 	 if (!xdr_Device_Flags (xdrs, &objp->flags))
@@ -269,7 +247,6 @@ bool_t
 xdr_Device_RemoteFunc (XDR *xdrs, Device_RemoteFunc *objp)
 {
 	register int32_t *buf;
-
 
 	if (xdrs->x_op == XDR_ENCODE) {
 		buf = XDR_INLINE (xdrs, 4 * BYTES_PER_XDR_UNIT);
@@ -331,8 +308,6 @@ xdr_Device_RemoteFunc (XDR *xdrs, Device_RemoteFunc *objp)
 bool_t
 xdr_Device_EnableSrqParms (XDR *xdrs, Device_EnableSrqParms *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_Link (xdrs, &objp->lid))
 		 return FALSE;
 	 if (!xdr_bool (xdrs, &objp->enable))
@@ -345,8 +320,6 @@ xdr_Device_EnableSrqParms (XDR *xdrs, Device_EnableSrqParms *objp)
 bool_t
 xdr_Device_LockParms (XDR *xdrs, Device_LockParms *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_Link (xdrs, &objp->lid))
 		 return FALSE;
 	 if (!xdr_Device_Flags (xdrs, &objp->flags))
@@ -360,8 +333,6 @@ bool_t
 xdr_Device_DocmdParms (XDR *xdrs, Device_DocmdParms *objp)
 {
 	register int32_t *buf;
-
-
 	if (xdrs->x_op == XDR_ENCODE) {
 		 if (!xdr_Device_Link (xdrs, &objp->lid))
 			 return FALSE;
@@ -442,8 +413,6 @@ xdr_Device_DocmdParms (XDR *xdrs, Device_DocmdParms *objp)
 bool_t
 xdr_Device_DocmdResp (XDR *xdrs, Device_DocmdResp *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_Device_ErrorCode (xdrs, &objp->error))
 		 return FALSE;
 	 if (!xdr_bytes (xdrs, (char **)&objp->data_out.data_out_val, (u_int *) &objp->data_out.data_out_len, ~0))
@@ -454,8 +423,6 @@ xdr_Device_DocmdResp (XDR *xdrs, Device_DocmdResp *objp)
 bool_t
 xdr_Device_SrqParms (XDR *xdrs, Device_SrqParms *objp)
 {
-	register int32_t *buf;
-
 	 if (!xdr_bytes (xdrs, (char **)&objp->handle.handle_val, (u_int *) &objp->handle.handle_len, ~0))
 		 return FALSE;
 	return TRUE;

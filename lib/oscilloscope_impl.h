@@ -30,6 +30,7 @@ class oscilloscope_impl : public oscilloscope
 #define tcpip 0
 #define agilent 1
 #define rohdeschwarz 2
+#define tektronix 3
 
 private:
 // Nothing to declare in this block.

@@ -58,20 +58,10 @@ namespace gr {
      int longueur;               // TCP/IP
      struct sockaddr_in adresse; // TCP/IP
      printf("%s\n",ip);fflush(stdout);
-     if (strcmp(ip,"127.0.0.1")==1) // 0 if ip is 127.0.0.1, 1 otherwise
-        {_vxi11=1;
-#ifdef mydebug
-         printf("VXI11\n"); fflush(stdout);
-#endif
-        }
-        else 
-        {_vxi11=0;
-#ifdef mydebug
-         printf("TCP/IP\n"); fflush(stdout);
-#endif
-        }
+     set_type(type);  // sets _vxi11 and _type
+     set_ip(ip);      // "169.254.202.240" for Agilent 54855DSO
      if (_vxi11==1)
-       {set_ip(ip); // "169.254.202.240" for Agilent 54855DSO
+       {
         if (vxi11_open_device(&dev,device_ip,device_name)!=0) printf("error opening\n");
            else printf("connect OK\n");
         sprintf(buffer,"*IDN?");
@@ -85,7 +75,7 @@ if (_type==agilent)
         sprintf(buffer,"*RST"); envoi(dev,buffer);
         sprintf(buffer,":SYSTEM:HEADER OFF"); envoi(dev,buffer);
 //        sprintf(buffer,":AUTOSCALE");envoi(dev,buffer); // + (sampleDuration));
-        sprintf(buffer,":TRIGGER:EDGE:SOURCE CHANNEL1;SLOPE POSITIVE");envoi(dev,buffer); 
+        sprintf(buffer,":TRIGGER:EDGE:SOURCE CHANNEL1;SLOPE POSITIVE");envoi(dev,buffer);
         sprintf(buffer,":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");envoi(dev,buffer);
         sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
 // Right Click on sine wave on top of display, Setup Acquisition and see SamplingRate/MemDepth
@@ -97,17 +87,28 @@ if (_type==agilent)
 // #else
        }
      else // TCP/IP
-      {
-       set_duration(1);
+      {if (_type==0) set_duration(1);
        sockfd = socket(AF_INET, SOCK_STREAM, 0);
        adresse.sin_family=AF_INET;
-       adresse.sin_addr.s_addr = inet_addr("127.0.0.1");
-       adresse.sin_port =htons(9999);
+       adresse.sin_addr.s_addr = inet_addr(ip); // 127.0.0.1");
+       if (_type==0)
+          adresse.sin_port =htons(9999);
+       else
+          adresse.sin_port =htons(4000);  // Tektronix oscilloscope
        bzero(&(adresse.sin_zero),8);
        longueur = sizeof(adresse);
        connect(sockfd, (struct sockaddr *)&adresse, longueur);
        longueur=htonl(_channels);
-       write(sockfd,&longueur,sizeof(int)); // number of channels
+       if (_type==0)
+          write(sockfd,&longueur,sizeof(int)); // number of channels
+       else
+          {set_range(range);
+           set_rate(rate);
+           set_duration(duration);
+           sprintf(buffer,"*IDN?\n");write(sockfd,buffer,strlen(buffer));
+           read(sockfd, buffer, sizeof(char)*256);
+           printf("IDN: %s\n",buffer);
+          }
       }   // TCP/IP
       _num_values=0;  // amount of data sent from buffers
 // #endif
@@ -146,14 +147,14 @@ if (_type==agilent)
       gr_vector_const_void_star &input_items,
       gr_vector_void_star &output_items)
     {float *out0 = (float *) output_items[0]; // 2 outputs
-     float *out1 = (float *) output_items[1]; 
-     float *out2 = (float *) output_items[2]; 
-     float *out3 = (float *) output_items[3]; 
+     float *out1 = (float *) output_items[1];
+     float *out2 = (float *) output_items[2];
+     float *out3 = (float *) output_items[3];
      long int k,val,offset;
      int chan_count;
      char mystring[256];
      char buffer[256];
-     
+
 #ifdef mydebug
      printf("channels: %ld\n",output_items.size()); // contient le nombre de canaux
 #endif
@@ -178,7 +179,7 @@ if (_type==agilent)
            vxi11_send_and_receive(dev, "WAVEFORM:DATA?", _data_buffer, (2*_sample_size+30), 100*VXI11_READ_TIMEOUT); // extend timeout
            if (_data_buffer[0]!='#') printf("error in trace header\n"); // printf("%c",buffer[0]); //#
            else
-             {offset=_data_buffer[1]-'0'; 
+             {offset=_data_buffer[1]-'0';
 #ifdef mydebug
               printf("%ld -> ",offset);
 #endif
@@ -190,9 +191,9 @@ if (_type==agilent)
               sprintf(buffer,":WAVEFORM:FORMAT WORD;BYTEORDER LSBFIRST\n");envoi(dev,buffer);
 //              sprintf(buffer,":WAVEFORM:FORMAT ASCII");envoi(dev,buffer);
               vxi11_send_and_receive(dev, "WAVEFORM:DATA?", _data_buffer, (2*_sample_size+30), 100*VXI11_READ_TIMEOUT); // extend timeout
-              if (_data_buffer[0]!='#') 
+              if (_data_buffer[0]!='#')
                  printf("error in trace header\n"); //  printf("%c",buffer[0]);  //#
-              else 
+              else
                  {offset=_data_buffer[1]-'0';
 #ifdef mydebug
                   printf("%ld -> ",offset);
@@ -212,9 +213,9 @@ if (_type==rohdeschwarz)
            for (chan_count=1;chan_count<=_channels;chan_count++)
              {sprintf(mystring,"CHAN%d:WAV:DATA?",chan_count);
               vxi11_send_and_receive(dev, mystring, _data_buffer, (2*_sample_size+100), 100*VXI11_READ_TIMEOUT); // extend timeout
-              if (_data_buffer[0]!='#') 
+              if (_data_buffer[0]!='#')
                  printf("error in trace header\n"); //  printf("%c",buffer[0]);  // #
-              else 
+              else
                 {offset=_data_buffer[1]-'0';       // ASCII -> dec
 #ifdef mydebug
                  printf("#ok => skipping %ld chars ; ",offset);
@@ -229,30 +230,52 @@ if (_type==rohdeschwarz)
              } // end of chan_count
 } // #endif
 // #else // VXI11 -> mode tcp server
-          } 
+          }
      else
-       {val=htonl(_sample_size);  // TCP server knows how many channels are requested
+       {if (_type==0)
+         {val=htonl(_sample_size);  // TCP server knows how many channels are requested
 #ifdef mydebug
-        printf("%d items requested\n",_sample_size);
+          printf("%d items requested\n",_sample_size);
 #endif
-        write(sockfd,&val,sizeof(long int));
-        read(sockfd, _tab1, sizeof(float)*_sample_size); 
-        if (_channels>=2) read(sockfd, _tab2, sizeof(float)*_sample_size); 
-        if (_channels>=3) read(sockfd, _tab3, sizeof(float)*_sample_size); 
-        if (_channels>=4) read(sockfd, _tab4, sizeof(float)*_sample_size); 
+          write(sockfd,&val,sizeof(long int));
+          read(sockfd, _tab1, sizeof(float)*_sample_size);
+          if (_channels>=2) read(sockfd, _tab2, sizeof(float)*_sample_size);
+          if (_channels>=3) read(sockfd, _tab3, sizeof(float)*_sample_size);
+          if (_channels>=4) read(sockfd, _tab4, sizeof(float)*_sample_size);
 // #endif
-       } 
+         }
+       else  // tektro
+         {sprintf(buffer,"HEADER OFF\n");write(sockfd,buffer,strlen(buffer));
+          sprintf(buffer,"DATA:SOURCE %d\n",chan_count);write(sockfd,buffer,strlen(buffer));
+          sprintf(buffer,"DATA:ENCdg RIBinary\n");write(sockfd,buffer,strlen(buffer));
+          sprintf(buffer,"DATA:WIDTH 2\n");write(sockfd,buffer,strlen(buffer));
+          sprintf(buffer,"DATA:START 1\n");write(sockfd,buffer,strlen(buffer));
+          sprintf(buffer,"WFMOUTPRE:NR_PT?\n");write(sockfd,buffer,strlen(buffer));
+          read(sockfd, &_sample_size, sizeof(int));
+          sprintf(buffer,"CURVE?\n");write(sockfd,buffer,strlen(buffer));
+          read(sockfd, _data_buffer, sizeof(short)*_sample_size);
+#ifdef mydebug
+          printf("%d items read\n",_sample_size);
+#endif
+          for (k=0;k<_sample_size;k++)
+           {if (chan_count==1) _tab1[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
+            if (chan_count==2) _tab2[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
+            if (chan_count==3) _tab3[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
+            if (chan_count==4) _tab4[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
+           }
+         }
+     }
      } // end of _num_values==0
 
      for (k=0;((k<noutput_items) && (_position<_sample_size));k++)
        {out0[k]=_tab1[_position];
-        if (_channels>=2) out1[k]=_tab2[_position]; 
-        if (_channels>=3) out2[k]=_tab3[_position]; 
-        if (_channels>=4) out3[k]=_tab4[_position]; 
+        if (_channels>=2) out1[k]=_tab2[_position];
+        if (_channels>=3) out2[k]=_tab3[_position];
+        if (_channels>=4) out3[k]=_tab4[_position];
         _num_values--;
         _position++;
        }
-     if (_num_values==0) 
+     if (_num_values==0)
         {
 #ifdef mydebug
          printf("_num_values==0\n");fflush(stdout);
@@ -268,14 +291,17 @@ if (_type==rohdeschwarz)
     }
 
 void oscilloscope_impl::set_type(int type)
-{if (type==0) _vxi11=0; else _vxi11=1;
+{if ((type==rohdeschwarz)||(type==agilent))
+    _vxi11=1;
+ else
+    _vxi11=0; // TCP/IP server or Tektronix
  _type=type;
 }
 
 void oscilloscope_impl::set_ip(char *ip)
 {int k,cnt=0;;
  for (k=0;k<(int)strlen(ip);k++) {if (ip[k]=='.') cnt++;}
- if (cnt==3) sprintf(device_ip,"%s",ip); 
+ if (cnt==3) sprintf(device_ip,"%s",ip);
     else {printf("invalid IP @\n");sprintf(device_ip,"127.0.0.1");} // TCP server on lo
  printf("IP address: %s -- check that the computer is on the same subnet\n",device_ip);
 }
@@ -297,7 +323,12 @@ if (_type==rohdeschwarz)
 //#endif
     }
  else
+   {if (_type==tektronix)
+      { // TODO
+      }
+    else
     _sample_size = 8192;
+   }
  printf("_sample_size=%d\n",_sample_size);
  _data_buffer=(char*)realloc(_data_buffer,2*_sample_size+100);
  _tab1=(float*)realloc(_tab1,_sample_size*sizeof(float));
@@ -342,12 +373,19 @@ if (_type==rohdeschwarz)
 }
 //#endif
    }
+ else
+   if (_type==tektronix)
+     { //TODO
+     }
  _range=range;
 }
 
 void oscilloscope_impl::set_channels(int channels)
 {_channels=channels;
  printf("Channels set to %d\n",channels);
+ if (_type==tektronix)
+   { // TODO
+   }
 }
 
 void oscilloscope_impl::set_rate(float rate)
@@ -369,7 +407,12 @@ if (_type==rohdeschwarz)
 //#endif
     }
  else
+  {if (_type==tektronix)
+    { // TODO
+    }
+   else
     _sample_size = 8192;
+  }
  printf("_sample_size=%d\n",_sample_size);
 // If  ptr  is  NULL,  then  the call is equivalent to malloc(size), for all values of size
  _data_buffer=(char*)realloc(_data_buffer,2*_sample_size+100);
@@ -396,3 +439,29 @@ if (_type==rohdeschwarz)
 }
   } /* namespace oscilloscope */
 } /* namespace gr */
+
+/*
+IP = "172.16.15.50"
+PORT = 4000
+CHANNEL = "CH1"
+
+def get_record_length(sock):
+    # MSO 4/5/6: HORIZONTAL:RECORDLENGTH?
+    try:
+        rl = q(sock, "HORIZONTAL:RECORDLENGTH?")
+        return int(float(rl))
+
+def read_preamble(sock):
+    ymult = float(q(sock, "WFMOUTPRE:YMULT?"))
+    yoff  = float(q(sock, "WFMOUTPRE:YOFF?"))
+    yzero = float(q(sock, "WFMOUTPRE:YZERO?"))
+    xincr = float(q(sock, "WFMOUTPRE:XINCR?"))
+    try:
+        xzero = float(q(sock, "WFMOUTPRE:XZERO?"))
+    except Exception:
+        xzero = 0.0
+    return ymult, yoff, yzero, xincr, xzero
+
+    sock.sendall(f"DATA:STOP {record_len}\n".encode());  time.sleep(0.05)
+
+*/
