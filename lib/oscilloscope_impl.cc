@@ -33,6 +33,37 @@ void envoi(VXI11_CLINK *clink,char *buffer)
  vxi11_send(clink, buffer,strlen(buffer));}
 //#endif
 
+// Tektronix TCP communication functions
+static int recv_all(int fd, char *buf, int total)
+{int r,got = 0;
+ while (got<total)
+   {r=read(fd,buf+got,total-got);
+    if (r<=0) return r;
+    got+=r;
+  }
+  return got;
+}
+
+static int tek_query_int(int fd, const char *cmd)
+{char b[256];
+ int r;
+ write(fd, cmd, strlen(cmd));
+ usleep(50000);
+ memset(b,0,sizeof(b));
+ r=read(fd,b,sizeof(b)-1);
+ return (r>0)? atoi(b) : -1;
+}
+
+static float tek_query_float(int fd, const char *cmd)
+{ char b[256];
+  int r;
+  write(fd, cmd, strlen(cmd));
+  usleep(50000);
+  memset(b,0,sizeof(b));
+  r=read(fd,b,sizeof(b)-1);
+  return (r>0)? (float)atof(b) : 0.0f;
+}
+
 namespace gr {
   namespace oscilloscope {
 
@@ -245,24 +276,61 @@ if (_type==rohdeschwarz)
 // #endif
          }
        else  // tektro
-         {sprintf(buffer,"HEADER OFF\n");write(sockfd,buffer,strlen(buffer));
-          sprintf(buffer,"DATA:SOURCE %d\n",chan_count);write(sockfd,buffer,strlen(buffer));
-          sprintf(buffer,"DATA:ENCdg RIBinary\n");write(sockfd,buffer,strlen(buffer));
-          sprintf(buffer,"DATA:WIDTH 2\n");write(sockfd,buffer,strlen(buffer));
-          sprintf(buffer,"DATA:START 1\n");write(sockfd,buffer,strlen(buffer));
-          sprintf(buffer,"WFMOUTPRE:NR_PT?\n");write(sockfd,buffer,strlen(buffer));
-          read(sockfd, &_sample_size, sizeof(int));
-          sprintf(buffer,"CURVE?\n");write(sockfd,buffer,strlen(buffer));
-          read(sockfd, _data_buffer, sizeof(short)*_sample_size);
+         {sprintf(buffer,"HEADER OFF\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+          sprintf(buffer,"ACQUIRE:STOPAFTER SEQUENCE\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+          sprintf(buffer,"ACQUIRE:STATE RUN\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+          sprintf(buffer,"*OPC?\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+          memset(buffer,0,sizeof(buffer));read(sockfd, buffer, 256);
+          int nr_pt = tek_query_int(sockfd, "HORIZONTAL:RECORDLENGTH?\n");
+          if (nr_pt <= 0) nr_pt = _sample_size;
 #ifdef mydebug
-          printf("%d items read\n",_sample_size);
+          printf("Tek RL = %d\n", nr_pt);
 #endif
-          for (k=0;k<_sample_size;k++)
-           {if (chan_count==1) _tab1[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
-            if (chan_count==2) _tab2[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
-            if (chan_count==3) _tab3[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
-            if (chan_count==4) _tab4[k]=(float)(*(short*)(&_data_buffer[2*k]))/65536.; // valid only on Intel/LE
-           }
+          if (nr_pt > _sample_size) {
+            _sample_size = nr_pt;
+            _data_buffer=(char*)realloc(_data_buffer,2*_sample_size+100);
+            _tab1=(float*)realloc(_tab1,_sample_size*sizeof(float));
+            _tab2=(float*)realloc(_tab2,_sample_size*sizeof(float));
+            _tab3=(float*)realloc(_tab3,_sample_size*sizeof(float));
+            _tab4=(float*)realloc(_tab4,_sample_size*sizeof(float));
+          }
+          for (chan_count=1;chan_count<=_channels;chan_count++)
+            {sprintf(buffer,"DATA:SOURCE CH%d\n",chan_count);write(sockfd,buffer,strlen(buffer));usleep(50000);
+             sprintf(buffer,"DATA:ENCDG RIBinary\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+             sprintf(buffer,"DATA:WIDTH 2\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+             float ymult = tek_query_float(sockfd, "WFMOUTPRE:YMULT?\n");
+             float yoff  = tek_query_float(sockfd, "WFMOUTPRE:YOFF?\n");
+             float yzero = tek_query_float(sockfd, "WFMOUTPRE:YZERO?\n");
+             ymult = ymult / 1000000.0f;
+#ifdef mydebug
+             printf("CH%d: ymult=%e yoff=%e yzero=%e\n", chan_count, ymult, yoff, yzero);
+#endif
+             sprintf(buffer,"DATA:START 1\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+             sprintf(buffer,"DATA:STOP %d\n", nr_pt);write(sockfd,buffer,strlen(buffer));usleep(50000);
+             sprintf(buffer,"CURVE?\n");write(sockfd,buffer,strlen(buffer));usleep(50000);
+             char h[16];
+             if (recv_all(sockfd, h, 2) != 2 || h[0] != '#') break;
+             int nd = h[1]-'0';
+             if (nd<=0 || nd>9) break;
+             if (recv_all(sockfd, h, nd) != nd) break;
+             h[nd]=0;
+             int data_bytes = atoi(h);
+             if (data_bytes > (2*_sample_size))
+               _data_buffer=(char*)realloc(_data_buffer, data_bytes+100);
+             if (recv_all(sockfd, _data_buffer, data_bytes) != data_bytes) break;
+             char nl; read(sockfd,&nl,1);
+             const unsigned char* u8 = reinterpret_cast<const unsigned char*>(_data_buffer);
+             long kmax = (nr_pt < _sample_size) ? nr_pt : _sample_size;
+             for (k=0; k<kmax; k++) {
+               uint16_t u16 = ((uint16_t)u8[2*k] << 8) | (uint16_t)u8[2*k+1];
+               int16_t s16 = (int16_t)u16;
+               float volts = (((float)s16 - yoff) * ymult) + yzero;
+               if (chan_count==1) _tab1[k]=volts;
+               if (chan_count==2) _tab2[k]=volts;
+               if (chan_count==3) _tab3[k]=volts;
+               if (chan_count==4) _tab4[k]=volts;
+             }
+            }
          }
      }
      } // end of _num_values==0
@@ -324,7 +392,10 @@ if (_type==rohdeschwarz)
     }
  else
    {if (_type==tektronix)
-      { // TODO
+      {_sample_size = (int)(duration * _rate);
+       sprintf(buffer,"HORIZONTAL:RECORDLENGTH %d\n",_sample_size);write(sockfd,buffer,strlen(buffer));usleep(50000);
+       int rl = tek_query_int(sockfd, "HORIZONTAL:RECORDLENGTH?\n");
+       if (rl>0) _sample_size = rl;
       }
     else
     _sample_size = 8192;
@@ -375,16 +446,24 @@ if (_type==rohdeschwarz)
    }
  else
    if (_type==tektronix)
-     { //TODO
+     {float scale = range / 10.0f;
+      for (int i=1;i<=_channels;i++) {
+        sprintf(buffer,"CH%d:SCALE %e\n",i,scale);
+        write(sockfd,buffer,strlen(buffer));usleep(50000);
+      }
      }
  _range=range;
 }
 
 void oscilloscope_impl::set_channels(int channels)
-{_channels=channels;
+{char buffer[256];
+ _channels=channels;
  printf("Channels set to %d\n",channels);
  if (_type==tektronix)
-   { // TODO
+   {for (int i=1;i<=4;i++) {
+      sprintf(buffer,"SELECT:CH%d %s\n", i, (i<=channels)?"ON":"OFF");
+      write(sockfd,buffer,strlen(buffer));usleep(50000);
+    }
    }
 }
 
@@ -408,7 +487,11 @@ if (_type==rohdeschwarz)
     }
  else
   {if (_type==tektronix)
-    { // TODO
+    {_sample_size = (int)(_duration * rate);
+     sprintf(buffer,"HORIZONTAL:MODE:SAMPLERATE %e\n",rate);write(sockfd,buffer,strlen(buffer));usleep(50000);
+     sprintf(buffer,"HORIZONTAL:RECORDLENGTH %d\n",_sample_size);write(sockfd,buffer,strlen(buffer));usleep(50000);
+     int rl = tek_query_int(sockfd, "HORIZONTAL:RECORDLENGTH?\n");
+     if (rl>0) _sample_size = rl;
     }
    else
     _sample_size = 8192;
@@ -439,29 +522,3 @@ if (_type==rohdeschwarz)
 }
   } /* namespace oscilloscope */
 } /* namespace gr */
-
-/*
-IP = "172.16.15.50"
-PORT = 4000
-CHANNEL = "CH1"
-
-def get_record_length(sock):
-    # MSO 4/5/6: HORIZONTAL:RECORDLENGTH?
-    try:
-        rl = q(sock, "HORIZONTAL:RECORDLENGTH?")
-        return int(float(rl))
-
-def read_preamble(sock):
-    ymult = float(q(sock, "WFMOUTPRE:YMULT?"))
-    yoff  = float(q(sock, "WFMOUTPRE:YOFF?"))
-    yzero = float(q(sock, "WFMOUTPRE:YZERO?"))
-    xincr = float(q(sock, "WFMOUTPRE:XINCR?"))
-    try:
-        xzero = float(q(sock, "WFMOUTPRE:XZERO?"))
-    except Exception:
-        xzero = 0.0
-    return ymult, yoff, yzero, xincr, xzero
-
-    sock.sendall(f"DATA:STOP {record_len}\n".encode());  time.sleep(0.05)
-
-*/
