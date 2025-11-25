@@ -29,3 +29,8 @@ make sure to
 export LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu
 ```
 in the terminal used to launch GNU Radio before running ``gnuradio-companion``
+
+## Example
+
+gr-oscilloscop is used by https://github.com/tlavarenne/gr-ethernet/ for decoding Ethernet frames
+in real time, assuming a radiofrequency grade oscilloscope with differential probes is available.
