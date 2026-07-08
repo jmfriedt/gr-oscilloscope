@@ -32,5 +32,5 @@ in the terminal used to launch GNU Radio before running ``gnuradio-companion``
 
 ## Example
 
-gr-oscilloscop is used by https://github.com/tlavarenne/gr-ethernet/ for decoding Ethernet frames
+gr-oscilloscope is used by https://github.com/tlavarenne/gr-ethernet/ for decoding Ethernet frames
 in real time, assuming a radiofrequency grade oscilloscope with differential probes is available.
