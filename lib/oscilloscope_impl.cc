@@ -99,17 +99,28 @@ namespace gr {
         envoi(dev,buffer);
         relit(dev,buffer,buffer_length);
         printf("%s\n",buffer);
+if (_type==agilent) printf("Agilent\n");
+if (_type==rohdeschwarz) printf("R&S\n");
 
 // #ifdef agilent
 if (_type==agilent)
 {       sprintf(buffer,"*CLS"); envoi(dev,buffer);
-        sprintf(buffer,"*RST"); envoi(dev,buffer);
+//        sprintf(buffer,"*RST"); envoi(dev,buffer);
         sprintf(buffer,":SYSTEM:HEADER OFF"); envoi(dev,buffer);
 //        sprintf(buffer,":AUTOSCALE");envoi(dev,buffer); // + (sampleDuration));
         sprintf(buffer,":TRIGGER:EDGE:SOURCE CHANNEL1;SLOPE POSITIVE");envoi(dev,buffer);
         sprintf(buffer,":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");envoi(dev,buffer);
         sprintf(buffer,":TRIGGER:SWEEP SINGLE"); envoi(dev,buffer);
 // Right Click on sine wave on top of display, Setup Acquisition and see SamplingRate/MemDepth
+}
+if (_type==rohdeschwarz)
+{  for (int c=1;c<=_channels;c++)
+       {sprintf(buffer,"CHAN%d:STAT ON\n",c);envoi(dev,buffer);
+        sprintf(buffer,"CHAN%d:STAT?\n",c);envoi(dev,buffer);relit(dev,buffer,256);
+#ifdef mydebug
+        printf("CHAN%d STAT: %s\n",c,buffer);
+#endif
+       }
 }
 //#endif
         set_range(range);
@@ -237,7 +248,9 @@ if (_type==agilent)
 }
 //#ifdef rohdeschwarz
 if (_type==rohdeschwarz)
-{          sprintf(buffer,"FORM:DATA INT,16\n");envoi(dev,buffer); // LSB first by default
+{          
+           sprintf(buffer,"*CLS"); envoi(dev,buffer);
+	   sprintf(buffer,"FORM:DATA INT,16\n");envoi(dev,buffer); // LSB first by default
            sprintf(buffer,"RUNSINGLE\n");envoi(dev,buffer);
            sprintf(buffer,"*OPC?"); envoi(dev,buffer); relit(dev,buffer,256);
 
@@ -437,10 +450,9 @@ if (_type==agilent)
 //#endif
 //#ifdef rohdeschwarz
 if (_type==rohdeschwarz)
-{   sprintf(buffer,"CHAN1:SCAL %f\n",range);envoi(dev,buffer); // RANG is not working ?!
-    if (_channels>=2) {sprintf(buffer,"CHAN2:SCAL %f\n",range);envoi(dev,buffer);}
-    if (_channels>=3) {sprintf(buffer,"CHAN3:SCAL %f\n",range);envoi(dev,buffer);}
-    if (_channels>=4) {sprintf(buffer,"CHAN4:SCAL %f\n",range);envoi(dev,buffer);}
+{  for (int c=1;c<=_channels;c++)
+       {sprintf(buffer,"CHAN%d:SCAL %f\n",c,_range);envoi(dev,buffer); // RANG is not working ?!
+       }								       
 }
 //#endif
    }

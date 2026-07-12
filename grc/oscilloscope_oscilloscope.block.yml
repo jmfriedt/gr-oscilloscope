@@ -1,6 +1,7 @@
 id: oscilloscope_oscilloscope
 label: oscilloscope
 category: '[oscilloscope]'
+flags: [ throttle, python, cpp ]
 
 templates:
   imports: from gnuradio import oscilloscope
@@ -45,7 +46,7 @@ parameters:
   dtype: int
   default: 0
   options: [0, 1, 2, 3]
-  option_labels: ["TCP/IP","Rohde & Scharz","Agilent","Tektronix"]
+  option_labels: ["TCP/IP","Agilent","Rohde & Scharz","Tektronix"]
 
 outputs:
 - label: out
