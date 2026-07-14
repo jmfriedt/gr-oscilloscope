@@ -10,7 +10,7 @@
  *   - Binary waveform transfer (CURVE?)
  */
 
-#include "oscilloscope_impl_tektronix.h"
+#include "oscilloscope_impl_tcpip.h"
 #include <algorithm>
 #include <cstring>
 #include <unistd.h>
@@ -30,8 +30,7 @@ int scope_backend_tcpip::relit(int fd, char* buf, int total)
 
 bool scope_backend_tcpip::init()
 {sockaddr_in a{};
- char buf[256];
- long longueur,
+ long longueur;
  _o->sockfd = socket(AF_INET, SOCK_STREAM, 0);
  if (_o->sockfd < 0) return false;
  a.sin_family = AF_INET;
@@ -45,7 +44,7 @@ bool scope_backend_tcpip::init()
    }
  printf("[TCPIP] OK\n"); fflush(stdout);
  longueur=htonl(_o->_channels);
- write(sockfd,&longueur,sizeof(int)); // number of channels
+ write(_o->sockfd,&longueur,sizeof(int)); // number of channels
  return true;
 }
 
@@ -60,29 +59,28 @@ bool scope_backend_tcpip::apply_range(float range)
 }
 
 bool scope_backend_tcpip::apply_rate(float rate)
-{_sample_size = 8192;
+{_o->_sample_size = 8192;
  _o->ensure_buffers();
  return true;
 }
 
 bool scope_backend_tcpip::apply_duration(float dur)
-{_sample_size = 8192;
+{_o->_sample_size = 8192;
  _o->ensure_buffers();
  return true;
 }
 
 bool scope_backend_tcpip::acquire()
-{char buffer[256];
- int val=htonl(_sample_size);  // TCP server knows how many channels are requested
+{int val=htonl(_o->_sample_size);  // TCP server knows how many channels are requested
  if (_o->sockfd < 0) return false;
 #ifdef mydebug
- printf("%d items requested\n",_sample_size);
+ printf("%d items requested\n",_o->_sample_size);
 #endif
  write(_o->sockfd,&val,sizeof(long int));
- read(_o->sockfd, _tab1, sizeof(float)*_sample_size);
- if (_o->_channels>=2) read(sockfd, _tab2, sizeof(float)*_sample_size);
- if (_o->_channels>=3) read(sockfd, _tab3, sizeof(float)*_sample_size);
- if (_o->_channels>=4) read(sockfd, _tab4, sizeof(float)*_sample_size);
+ read(_o->sockfd, _o->_tab1, sizeof(float)*_o->_sample_size);
+ if (_o->_channels>=2) read(_o->sockfd, _o->_tab2, sizeof(float)*_o->_sample_size);
+ if (_o->_channels>=3) read(_o->sockfd, _o->_tab3, sizeof(float)*_o->_sample_size);
+ if (_o->_channels>=4) read(_o->sockfd, _o->_tab4, sizeof(float)*_o->_sample_size);
  return true;
 }
 } // namespace oscilloscope

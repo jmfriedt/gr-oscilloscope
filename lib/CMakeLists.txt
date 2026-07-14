@@ -21,6 +21,7 @@ list(APPEND oscilloscope_sources
     oscilloscope_impl_rigol.cc
     oscilloscope_impl_rohdeschwarz.cc
     oscilloscope_impl_tektronix.cc
+    oscilloscope_impl_tcpip.cc
 )
 
 set(oscilloscope_sources

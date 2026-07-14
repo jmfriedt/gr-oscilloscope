@@ -38,7 +38,6 @@ public:
    virtual void set_rate(float rate) = 0;
    virtual void set_duration(float duration) = 0;
    virtual void set_ip(char* ip) = 0;
-   virtual void set_channels(int channels) = 0;
    virtual void set_type(int type) = 0;
 //   virtual void set_acq_mode(int acq_mode) = 0; // 0 = RAW (mem), 1 = NORM/LIVE (display/fast) — only meaningful for Rigol/Tek
 };
