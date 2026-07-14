@@ -45,15 +45,14 @@ parameters:
   label: Oscilloscope Type
   dtype: int
   default: 0
-  options: [0, 1, 2, 3]
-  option_labels: ["TCP/IP","Agilent","Rohde & Scharz","Tektronix"]
+  options: [0, 1, 2, 3, 4]
+  option_labels: ["TCP/IP","Agilent","Rohde & Schwarz","Tektronix","Rigol"]
 
 outputs:
 - label: out
   domain: stream
   dtype: float
   multiplicity: ${ channels }
-
 
 asserts:
  - ${ channels > 0 }

@@ -13,9 +13,14 @@ include(GrPlatform) #define LIB_SUFFIX
 
 list(APPEND oscilloscope_sources
     oscilloscope_impl.cc
-vxi11/library/vxi11_clnt.c
-vxi11/library/vxi11_user.c
-vxi11/library/vxi11_xdr.c
+    vxi11/library/vxi11_clnt.c
+    vxi11/library/vxi11_user.c
+    vxi11/library/vxi11_xdr.c
+    oscilloscope_factory.cc
+    oscilloscope_impl_agilent.cc
+    oscilloscope_impl_rigol.cc
+    oscilloscope_impl_rohdeschwarz.cc
+    oscilloscope_impl_tektronix.cc
 )
 
 set(oscilloscope_sources

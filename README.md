@@ -34,3 +34,10 @@ in the terminal used to launch GNU Radio before running ``gnuradio-companion``
 
 gr-oscilloscope is used by https://github.com/tlavarenne/gr-ethernet/ for decoding Ethernet frames
 in real time, assuming a radiofrequency grade oscilloscope with differential probes is available.
+
+## Developer note
+
+Update to the Python bindings when modifying the C++ ``lib/`` content:
+```
+gr_modtool bind oscilloscope
+```
