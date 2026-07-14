@@ -17,14 +17,30 @@
 namespace gr {
 namespace oscilloscope {
 
+int scope_backend_agilent::relit(VXI11_CLINK* clink, char* buffer, int buffer_length)
+{int ret = vxi11_receive(clink, buffer, buffer_length);
+ if (ret > 0) buffer[ret - 1] = 0;
+ return ret;
+}
+
 void scope_backend_agilent::envoi(VXI11_CLINK* clink, const char* s)
 {vxi11_send(clink, (char*)s, (int)std::strlen(s));
 }
 
 bool scope_backend_agilent::init()
-{if (!_o || !_o->dev) return false;
+{char* device_name = nullptr;
+ char b[256];       // Right Click on sine wave on top of display, Setup Acquisition 
+                    //             and see SamplingRate/MemDepth
+ _o->dev = nullptr; // "169.254.202.240" for Agilent 54855DSO
+ if (vxi11_open_device(&_o->dev, _o->_device_ip, device_name) != 0)
+   {printf("[Agilent] error opening vxi11\n"); fflush(stdout);
+    return false;
+   }
+ if (!_o || !_o->dev) return false;
+ envoi(_o->dev, "*IDN?");
+ relit(_o->dev, b, sizeof(b));
+ printf("[Agilent] IDN: %s\n", b); fflush(stdout);
  envoi(_o->dev, "*CLS");
- // envoi(_o->dev, "*RST");
  envoi(_o->dev, ":SYSTEM:HEADER OFF");
  envoi(_o->dev, ":TRIGGER:EDGE:SOURCE CHANNEL1;SLOPE POSITIVE");
  envoi(_o->dev, ":TRIGGER:EDGE:LEVEL CHANNEL1,0.0");
@@ -89,7 +105,7 @@ bool scope_backend_agilent::acquire()
     envoi(_o->dev, ":WAVEFORM:FORMAT WORD;BYTEORDER LSBFIRST\n");
     vxi11_send_and_receive(_o->dev, (char*)"WAVEFORM:DATA?\n", _o->_data_buffer, want, 100 * VXI11_READ_TIMEOUT);
     if (_o->_data_buffer[0] != '#') 
-       {printf("Agilent: error in trace header (CH%d)\n",c); return false; 
+       {printf("[Agilent] error in trace header (CH%d)\n",c); return false; 
        }
     int nd = _o->_data_buffer[1] - '0';
     int hdr = 2 + nd;

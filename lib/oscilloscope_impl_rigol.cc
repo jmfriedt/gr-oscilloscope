@@ -31,15 +31,14 @@ bool scope_backend_rigol::init()
 {char* device_name = nullptr;
  char b[256];
  _o->dev = nullptr;
- if (vxi11_open_device(&_o->dev, _o->device_ip, device_name) != 0)
+ if (vxi11_open_device(&_o->dev, _o->_device_ip, device_name) != 0)
    {printf("[rigol] error opening vxi11\n");
-    fflush(stdout);
-    return false;
+    fflush(stdout); return false;
    }
+ if (!_o || !_o->dev) return false;
  envoi(_o->dev, "*IDN?");
  relit(_o->dev, b, sizeof(b));
- printf("[rigol] IDN: %s\n", b);
- fflush(stdout);
+ printf("[rigol] IDN: %s\n", b); fflush(stdout);
  envoi(_o->dev, "*CLS");
  envoi(_o->dev, ":WAV:FORM BYTE");
  envoi(_o->dev, ":WAV:MODE RAW");

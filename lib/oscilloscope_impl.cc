@@ -55,7 +55,6 @@ oscilloscope_impl::oscilloscope_impl(char* ip, float range, float rate, float du
   _backend = make_backend(_type, this);
   if (_backend) {
     _backend->init();
-    _backend->apply_channels(_channels);
     _backend->apply_range(_range);
     _backend->apply_rate(_rate);
     _backend->apply_duration(_duration);
@@ -64,7 +63,6 @@ oscilloscope_impl::oscilloscope_impl(char* ip, float range, float rate, float du
 
 oscilloscope_impl::~oscilloscope_impl()
 { if (_backend) _backend->shutdown();
-  if (_vxi11 == 0 && sockfd >= 0) close(sockfd);
   std::free(_data_buffer);
   std::free(_tab1);
   std::free(_tab2);
@@ -89,12 +87,7 @@ void oscilloscope_impl::set_type(int t)
 void oscilloscope_impl::set_ip(char* ip)
 {if (!ip || count_dots(ip) != 3)
    ip = (char*)"127.0.0.1";
- std::snprintf(device_ip, sizeof(device_ip), "%s", ip);
-}
-
-void oscilloscope_impl::set_channels(int c)
-{_channels = c;
- if (_backend) _backend->apply_channels(_channels);
+ sprintf(_device_ip, "%s", ip);
 }
 
 void oscilloscope_impl::set_range(float r)
@@ -127,26 +120,24 @@ int oscilloscope_impl::work(int noutput_items,
   float* out2 = output_items.size() > 2 ? (float*)output_items[2] : nullptr;
   float* out3 = output_items.size() > 3 ? (float*)output_items[3] : nullptr;
 
-  if (_num_values == 0) {
-    _num_values = _sample_size;
-    _position   = 0;
+  if (_num_values == 0)
+    {_num_values = _sample_size;
+     _position   = 0;
 
-    if (!_backend || !_backend->acquire()) {
-      for (int i = 0; i < _sample_size; i++)
+     if (!_backend || !_backend->acquire())
+       {for (int i = 0; i < _sample_size; i++)
         _tab1[i] = _tab2[i] = _tab3[i] = _tab4[i] = 0.0f;
+       }
     }
-  }
-
-  int k = 0;
-  for (; k < noutput_items && _position < _sample_size; k++) {
-    out0[k] = _tab1[_position];
-    if (_channels >= 2 && out1) out1[k] = _tab2[_position];
-    if (_channels >= 3 && out2) out2[k] = _tab3[_position];
-    if (_channels >= 4 && out3) out3[k] = _tab4[_position];
-    _num_values--;
-    _position++;
-  }
-
+  int k;
+  for (k=0; k < noutput_items && _position < _sample_size; k++)
+    {out0[k] = _tab1[_position];
+     if (_channels >= 2 && out1) out1[k] = _tab2[_position];
+     if (_channels >= 3 && out2) out2[k] = _tab3[_position];
+     if (_channels >= 4 && out3) out3[k] = _tab4[_position];
+     _num_values--;
+     _position++;
+    }
   return k;
 }
 

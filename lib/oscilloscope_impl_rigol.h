@@ -25,8 +25,6 @@ public:
   bool apply_range(float) override     { return true; }
   bool apply_rate(float) override      { return true; }
   bool apply_duration(float) override  { return true; }
-  bool apply_channels(int) override    { return true; }
-
   bool acquire() override;
 
 private:

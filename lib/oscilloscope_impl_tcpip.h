@@ -12,15 +12,14 @@
 namespace gr {
 namespace oscilloscope {
 
-class scope_backend_tektronix : public scope_backend
+class scope_backend_tcpip : public scope_backend
 {
 public:
-  explicit scope_backend_tektronix(oscilloscope_impl* owner) : _o(owner) {}
-  ~scope_backend_tektronix() override = default;
+  explicit scope_backend_tcpip(oscilloscope_impl* owner) : _o(owner) {}
+  ~scope_backend_tcpip() override = default;
 
   bool init() override;
   void shutdown() override;
-
   bool apply_range(float range) override;
   bool apply_rate(float rate) override;
   bool apply_duration(float dur) override;
@@ -28,10 +27,7 @@ public:
 
 private:
   oscilloscope_impl* _o;
-
   static int   relit(int fd, char* buf, int total);
-  static int   tek_query_int(int fd, const char* cmd);
-  static float tek_query_float(int fd, const char* cmd);
 };
 
 } // namespace oscilloscope

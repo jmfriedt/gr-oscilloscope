@@ -46,9 +46,6 @@ public:
   virtual bool apply_range(float)     { return true; }
   virtual bool apply_rate(float)      { return true; }
   virtual bool apply_duration(float)  { return true; }
-  virtual bool apply_channels(int)    { return true; }
-
-  // Fill _tab1.._tab4, adjust _sample_size if needed
   virtual bool acquire() = 0;
 };
 
@@ -78,7 +75,6 @@ public:
   void set_range(float r);
   void set_rate(float r);
   void set_duration(float d);
-  void set_channels(int c);
 
   int  type() const     { return _type; }
   bool is_vxi11() const { return _vxi11 == 1; }
@@ -94,7 +90,7 @@ public:
   // TCP/IP instruments
   int sockfd = -1;
 
-  char device_ip[16] = {0};
+  char _device_ip[16] = {0};
 
   float _range     = 1.0f;
   float _rate      = 1.0f;

@@ -18,7 +18,7 @@
 namespace gr {
 namespace oscilloscope {
 
-int scope_backend_tektronix::recv_all(int fd, char* buf, int total)
+int scope_backend_tektronix::relit(int fd, char* buf, int total)
 {int got = 0;
  while (got < total)
    {int r = (int)read(fd, buf + got, (size_t)(total - got));
@@ -29,20 +29,20 @@ int scope_backend_tektronix::recv_all(int fd, char* buf, int total)
 }
 
 int scope_backend_tektronix::tek_query_int(int fd, const char* cmd)
-{char b[256];
+{char buf[256];
  write(fd, cmd, strlen(cmd)); usleep(50000);
- memset(b, 0, sizeof(b));
- int r = (int)read(fd, b, sizeof(b) - 1);
- return (r > 0) ? atoi(b) : -1;
+ memset(buf, 0, sizeof(buf));
+ int r = (int)read(fd, buf, sizeof(buf) - 1);
+ return (r > 0) ? atoi(buf) : -1;
 }
 
 float scope_backend_tektronix::tek_query_float(int fd, const char* cmd)
-{char b[256];
+{char buf[256];
  write(fd, cmd, strlen(cmd));
  usleep(50000);
- memset(b, 0, sizeof(b));
- int r = (int)read(fd, b, sizeof(b) - 1);
- return (r > 0) ? (float)atof(b) : 0.0f;
+ memset(buf, 0, sizeof(buf));
+ int r = (int)read(fd, buf, sizeof(buf) - 1);
+ return (r > 0) ? (float)atof(buf) : 0.0f;
 }
 
 bool scope_backend_tektronix::init()
@@ -51,18 +51,27 @@ bool scope_backend_tektronix::init()
  _o->sockfd = socket(AF_INET, SOCK_STREAM, 0); // Tektronix SCPI server (raw TCP)
  if (_o->sockfd < 0) return false;
  a.sin_family = AF_INET;
- a.sin_addr.s_addr = inet_addr(_o->device_ip);
+ a.sin_addr.s_addr = inet_addr(_o->_device_ip);
  a.sin_port = htons(4000);
+ bzero(&(a.sin_zero),8);
  if (connect(_o->sockfd, (struct sockaddr*)&a, sizeof(a)) != 0)
    {close(_o->sockfd);
     _o->sockfd = -1;
     return false;
    }
+ for (int c = 1; c <= _o->_channels; c++)
+   {sprintf(buf, "SELECT:CH%d ON\n",c);
+    write(_o->sockfd, buf, strlen(buf)); usleep(20000);
+   }
+ for (int c =_o->_channels+1; c<=4; c++)
+   {sprintf(buf, "SELECT:CH%d OFF\n",c);
+    write(_o->sockfd, buf, strlen(buf)); usleep(20000);
+   }
  const char* idn = "*IDN?\n";
  write(_o->sockfd, idn, strlen(idn)); usleep(50000);
  memset(buf, 0, sizeof(buf));
  read(_o->sockfd, buf, sizeof(buf) - 1);
- printf("IDN: %s\n", buf); fflush(stdout);
+ printf("[Tektro] IDN: %s\n", buf); fflush(stdout);
  return true;
 }
 
@@ -70,25 +79,12 @@ void scope_backend_tektronix::shutdown()
 {close(_o->sockfd);
 }
 
-bool scope_backend_tektronix::apply_channels(int ch)
-{char b[64];
- for (int c = 1; c <= _o->_channels; c++)
-   {sprintf(b, "SELECT:CH%d ON\n",c);
-    write(_o->sockfd, b, strlen(b)); usleep(20000);
-   }
- for (int c =_o->_channels+1; c<=4; c++)
-   {sprintf(b, "SELECT:CH%d OFF\n",c);
-    write(_o->sockfd, b, strlen(b)); usleep(20000);
-   }
-  return true;
-}
-
 bool scope_backend_tektronix::apply_range(float range)
 {float scale = range / 10.0f; // Vertical scale = full range / 10 div
- char b[64];
+ char buf[64];
  for (int c = 1; c <= _o->_channels; c++)
-   {snprintf(b, sizeof(b), "CH%d:SCALE %e\n", c, scale);
-    write(_o->sockfd, b, strlen(b)); usleep(50000);
+   {snprintf(buf, sizeof(buf), "CH%d:SCALE %e\n", c, scale);
+    write(_o->sockfd, buf, strlen(buf)); usleep(50000);
   }
   return true;
 }
@@ -156,6 +152,7 @@ bool scope_backend_tektronix::acquire()
     float ymult = tek_query_float(_o->sockfd, "WFMOUTPRE:YMULT?\n");
     float yoff  = tek_query_float(_o->sockfd, "WFMOUTPRE:YOFF?\n");
     float yzero = tek_query_float(_o->sockfd, "WFMOUTPRE:YZERO?\n");
+    ymult = ymult / 1000000.0f;
     sprintf(buffer, "DATA:START 1\n");
     write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
     sprintf(buffer, "DATA:STOP %d\n", nr_pt); 
@@ -163,10 +160,10 @@ bool scope_backend_tektronix::acquire()
     sprintf(buffer, "CURVE?\n");  
     write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
     char h[16]; // SCPI binary block header
-    if (recv_all(_o->sockfd, h, 2) != 2 || h[0] != '#') return false;
+    if (relit(_o->sockfd, h, 2) != 2 || h[0] != '#') return false;
     int nd = h[1] - '0';
     if (nd <= 0 || nd > 9) return false;
-    if (recv_all(_o->sockfd, h, nd) != nd) return false;
+    if (relit(_o->sockfd, h, nd) != nd) return false;
     h[nd] = 0;
     int data_bytes = atoi(h);
     if (data_bytes <= 0) return false;
@@ -175,7 +172,7 @@ bool scope_backend_tektronix::acquire()
         if (!_o->_data_buffer) return false;
        }
 
-    if (recv_all(_o->sockfd, _o->_data_buffer, data_bytes) != data_bytes) return false;
+    if (relit(_o->sockfd, _o->_data_buffer, data_bytes) != data_bytes) return false;
     char nl; 
     read(_o->sockfd, &nl, 1); // trailing newline
     const unsigned char* u8 = (const unsigned char*)_o->_data_buffer;

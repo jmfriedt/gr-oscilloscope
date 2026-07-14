@@ -23,13 +23,12 @@ public:
   bool apply_range(float range) override;
   bool apply_rate(float rate) override;
   bool apply_duration(float dur) override;
-  bool apply_channels(int ch) override;
-
   bool acquire() override;
 
 private:
   oscilloscope_impl* _o = nullptr;
 
+  static int  relit(VXI11_CLINK* clink, char* buffer, int buffer_length);
   static void envoi(VXI11_CLINK* clink, const char* s);
 };
 
