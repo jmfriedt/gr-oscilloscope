@@ -40,7 +40,7 @@ blocks:
     bus_structure: null
     coordinate: [344, 168.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: duration
   id: variable
   parameters:
@@ -50,7 +50,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [48, 272.0]
+    coordinate: [48, 288.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -74,7 +74,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [48, 344.0]
+    coordinate: [48, 360.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_mag_0
@@ -92,7 +92,7 @@ blocks:
     bus_structure: null
     coordinate: [1088, 96.0]
     rotation: 180
-    state: enabled
+    state: disabled
 - name: blocks_complex_to_mag_0_0
   id: blocks_complex_to_mag
   parameters:
@@ -108,7 +108,7 @@ blocks:
     bus_structure: null
     coordinate: [1096, 416.0]
     rotation: 180
-    state: enabled
+    state: disabled
 - name: blocks_multiply_conjugate_cc_0
   id: blocks_multiply_conjugate_cc
   parameters:
@@ -124,7 +124,7 @@ blocks:
     bus_structure: null
     coordinate: [880, 168.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_multiply_conjugate_cc_0_0
   id: blocks_multiply_conjugate_cc
   parameters:
@@ -140,7 +140,7 @@ blocks:
     bus_structure: null
     coordinate: [880, 304.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_stream_to_vector_0
   id: blocks_stream_to_vector
   parameters:
@@ -158,7 +158,7 @@ blocks:
     bus_structure: null
     coordinate: [336, 128.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_stream_to_vector_0_0
   id: blocks_stream_to_vector
   parameters:
@@ -176,7 +176,7 @@ blocks:
     bus_structure: null
     coordinate: [336, 248.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_stream_to_vector_0_1
   id: blocks_stream_to_vector
   parameters:
@@ -194,7 +194,7 @@ blocks:
     bus_structure: null
     coordinate: [336, 368.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_vector_to_stream_0
   id: blocks_vector_to_stream
   parameters:
@@ -212,7 +212,7 @@ blocks:
     bus_structure: null
     coordinate: [1248, 96.0]
     rotation: 180
-    state: enabled
+    state: disabled
 - name: blocks_vector_to_stream_0_0
   id: blocks_vector_to_stream
   parameters:
@@ -230,7 +230,7 @@ blocks:
     bus_structure: null
     coordinate: [1256, 416.0]
     rotation: 180
-    state: enabled
+    state: disabled
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -251,7 +251,7 @@ blocks:
     bus_structure: null
     coordinate: [496, 88.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: fft_vxx_0_0
   id: fft_vxx
   parameters:
@@ -272,7 +272,7 @@ blocks:
     bus_structure: null
     coordinate: [496, 208.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: fft_vxx_0_1
   id: fft_vxx
   parameters:
@@ -293,7 +293,7 @@ blocks:
     bus_structure: null
     coordinate: [496, 328.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: fft_vxx_1
   id: fft_vxx
   parameters:
@@ -314,7 +314,7 @@ blocks:
     bus_structure: null
     coordinate: [1072, 144.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: fft_vxx_1_0
   id: fft_vxx
   parameters:
@@ -335,21 +335,23 @@ blocks:
     bus_structure: null
     coordinate: [1080, 280.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: oscilloscope_oscilloscope_0
   id: oscilloscope_oscilloscope
   parameters:
     affinity: ''
     alias: ''
     channels: '3'
-    comment: RTO2034 192.168.1.201
+    comment: 'RTO2034 192.168.1.201
+
+      DSOS404A 192.168.200.11'
     duration: duration
-    ip: 192.168.1.201
+    ip: 192.168.200.11
     maxoutbuf: '0'
     minoutbuf: '0'
-    range: '.5'
+    range: '1.5'
     rate: samp_rate
-    type: '2'
+    type: '1'
   states:
     bus_sink: false
     bus_source: false
@@ -372,7 +374,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'False'
+    autoscale: 'True'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -412,7 +414,7 @@ blocks:
     marker9: '-1'
     name: '""'
     nconnections: '3'
-    size: '1024'
+    size: int(samp_rate*duration)
     srate: samp_rate
     stemplot: 'False'
     style1: '1'
@@ -550,7 +552,7 @@ blocks:
     bus_structure: null
     coordinate: [880, 72.0]
     rotation: 180
-    state: enabled
+    state: disabled
 - name: qtgui_time_sink_x_1_0
   id: qtgui_time_sink_x
   parameters:
@@ -647,7 +649,7 @@ blocks:
     bus_structure: null
     coordinate: [888, 392.0]
     rotation: 180
-    state: enabled
+    state: disabled
 
 connections:
 - [blocks_complex_to_mag_0, '0', qtgui_time_sink_x_1, '0']
