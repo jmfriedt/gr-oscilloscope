@@ -1,5 +1,4 @@
 build
 *pycache*
-*bindings*
 *.swp
 *.o

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Free Software Foundation, Inc.
+ * Copyright 2026 Free Software Foundation, Inc.
  *
  * This file is part of GNU Radio
  *
@@ -19,4 +19,18 @@ static const char *__doc_gr_oscilloscope_oscilloscope = R"doc()doc";
 static const char *__doc_gr_oscilloscope_oscilloscope_oscilloscope_0 =
     R"doc()doc";
 
+static const char *__doc_gr_oscilloscope_oscilloscope_oscilloscope_1 =
+    R"doc()doc";
+
 static const char *__doc_gr_oscilloscope_oscilloscope_make = R"doc()doc";
+
+static const char *__doc_gr_oscilloscope_oscilloscope_set_range = R"doc()doc";
+
+static const char *__doc_gr_oscilloscope_oscilloscope_set_rate = R"doc()doc";
+
+static const char *__doc_gr_oscilloscope_oscilloscope_set_duration =
+    R"doc()doc";
+
+static const char *__doc_gr_oscilloscope_oscilloscope_set_ip = R"doc()doc";
+
+static const char *__doc_gr_oscilloscope_oscilloscope_set_type = R"doc()doc";

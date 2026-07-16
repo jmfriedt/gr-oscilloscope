@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Free Software Foundation, Inc.
+ * Copyright 2026 Free Software Foundation, Inc.
  *
  * This file is part of GNU Radio
  *
@@ -16,7 +16,7 @@
 /* BINDTOOL_GEN_AUTOMATIC(0) */
 /* BINDTOOL_USE_PYGCCXML(0) */
 /* BINDTOOL_HEADER_FILE(oscilloscope.h) */
-/* BINDTOOL_HEADER_FILE_HASH(2113bda72819d9ad8f48af686565b908) */
+/* BINDTOOL_HEADER_FILE_HASH(5b6da6824ea96d790ec48be37b379b70) */
 /***********************************************************************************/
 
 #include <pybind11/complex.h>
@@ -36,9 +36,24 @@ void bind_oscilloscope(py::module &m) {
   py::class_<oscilloscope, gr::sync_block, gr::block, gr::basic_block,
              std::shared_ptr<oscilloscope>>(m, "oscilloscope", D(oscilloscope))
 
-      .def(py::init(&oscilloscope::make), py::arg("arg0"), py::arg("arg1"),
-           py::arg("arg2"), py::arg("arg3"), py::arg("arg4"), py::arg("arg5"),
-           D(oscilloscope, make))
+      .def(py::init(&oscilloscope::make), py::arg("ip"), py::arg("range"),
+           py::arg("rate"), py::arg("duration"), py::arg("channels"),
+           py::arg("type"), D(oscilloscope, make))
+
+      .def("set_range", &oscilloscope::set_range, py::arg("range"),
+           D(oscilloscope, set_range))
+
+      .def("set_rate", &oscilloscope::set_rate, py::arg("rate"),
+           D(oscilloscope, set_rate))
+
+      .def("set_duration", &oscilloscope::set_duration, py::arg("duration"),
+           D(oscilloscope, set_duration))
+
+      .def("set_ip", &oscilloscope::set_ip, py::arg("ip"),
+           D(oscilloscope, set_ip))
+
+      .def("set_type", &oscilloscope::set_type, py::arg("type"),
+           D(oscilloscope, set_type))
 
       ;
 }
