@@ -8,6 +8,8 @@ ifneq ($(UNAME),SunOS)
 	LDFLAGS:=$(LDFLAGS) -Wl,--version-script=linker.version
 endif
 
+CFLAGS = -I/usr/include/tirpc
+
 all : libvxi11.so.${SOVERSION}
 
 libvxi11.so.${SOVERSION} : vxi11_user.o vxi11_clnt.o vxi11_xdr.o

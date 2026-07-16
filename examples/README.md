@@ -9,4 +9,5 @@ Companion ``gnuradio310_tcpip.grc`` leading the the following output:
 <img src="gnuradio310_tcpip.png">
 
 The server generates as any sine waves as declared channel, first argument
-sent by the client to the server.
+sent by the client to the server. Tested July 2026 with GNU Radio 3.10.12.0
+(Python 3.13.12)

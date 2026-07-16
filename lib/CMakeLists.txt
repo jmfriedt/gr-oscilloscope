@@ -33,7 +33,7 @@ if(NOT oscilloscope_sources)
 endif(NOT oscilloscope_sources)
 
 add_library(gnuradio-oscilloscope SHARED ${oscilloscope_sources})
-target_link_libraries(gnuradio-oscilloscope gnuradio::gnuradio-runtime)
+target_link_libraries(gnuradio-oscilloscope gnuradio::gnuradio-runtime tirpc)
 target_include_directories(
     gnuradio-oscilloscope
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>

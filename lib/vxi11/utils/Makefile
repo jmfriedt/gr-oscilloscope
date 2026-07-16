@@ -7,13 +7,13 @@ CFLAGS:=${CFLAGS} -I../library
 all : vxi11_cmd vxi11_send
 
 vxi11_cmd: vxi11_cmd.o ../library/libvxi11.so.${SOVERSION}
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS) -ltirpc
 
 vxi11_cmd.o: vxi11_cmd.c ../library/vxi11_user.c ../library/vxi11.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 vxi11_send: vxi11_send.o ../library/libvxi11.so.${SOVERSION}
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS) -ltirpc
 
 vxi11_send.o: vxi11_send.c ../library/vxi11_user.c ../library/vxi11.h
 	$(CC) $(CFLAGS) -c $< -o $@

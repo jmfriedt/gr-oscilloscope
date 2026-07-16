@@ -13,8 +13,8 @@ namespace oscilloscope {
 enum scope_type_t : int
 {
   SCOPE_TCPIP         = 0,
-  SCOPE_ROHDE_SCHWARZ = 1,
-  SCOPE_AGILENT       = 2,
+  SCOPE_AGILENT       = 1,
+  SCOPE_ROHDE_SCHWARZ = 2,
   SCOPE_TEKTRONIX     = 3,
   SCOPE_RIGOL         = 4
 };
