@@ -53,7 +53,7 @@ outputs:
   domain: stream
   dtype: float
   multiplicity: ${ channels }
-  vlen: ${ (int)duration * (int)rate }
+  vlen: ${ int(duration * rate) }
 
 asserts:
  - ${ channels > 0 }

@@ -122,18 +122,5 @@ bool scope_backend_rigol::acquire()
   envoi(_o->dev, ":RUN");
   return true;
 }
-
-/*
- * TODO:
- *  - Optional configuration of timebase and vertical scale
- *    (currently avoided to prevent user settings override)
- *
- *  - Support acquisition modes other than :SING
- *
- *  - Cache PRE metadata when unchanged to reduce SCPI traffic
- *
- *
- */
-
 } // namespace oscilloscope
 } // namespace gr

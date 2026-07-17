@@ -114,31 +114,24 @@ void oscilloscope_impl::set_duration(float d)
 int oscilloscope_impl::work(int noutput_items,
                             gr_vector_const_void_star&,
                             gr_vector_void_star& output_items)
-{
+{ int k;
   float* out0 = (float*)output_items[0];
   float* out1 = output_items.size() > 1 ? (float*)output_items[1] : nullptr;
   float* out2 = output_items.size() > 2 ? (float*)output_items[2] : nullptr;
   float* out3 = output_items.size() > 3 ? (float*)output_items[3] : nullptr;
 
-  if (_num_values == 0)
-    {_num_values = _sample_size;
-     _position   = 0;
-
-     if (!_backend || !_backend->acquire())
-       {for (int i = 0; i < _sample_size; i++)
-        _tab1[i] = _tab2[i] = _tab3[i] = _tab4[i] = 0.0f;
-       }
+  if (!_backend || !_backend->acquire())
+     {for (int i = 0; i < _sample_size; i++)
+      _tab1[i] = _tab2[i] = _tab3[i] = _tab4[i] = 0.0f;
+     }
+  // for (k=0; k < noutput_items && _position < _sample_size; k++)
+  for (k=0; k < _sample_size; k++)
+    {out0[k] = _tab1[k];
+     if (_channels >= 2 && out1) out1[k] = _tab2[k];
+     if (_channels >= 3 && out2) out2[k] = _tab3[k];
+     if (_channels >= 4 && out3) out3[k] = _tab4[k];
     }
-  int k;
-  for (k=0; k < noutput_items && _position < _sample_size; k++)
-    {out0[k] = _tab1[_position];
-     if (_channels >= 2 && out1) out1[k] = _tab2[_position];
-     if (_channels >= 3 && out2) out2[k] = _tab3[_position];
-     if (_channels >= 4 && out3) out3[k] = _tab4[_position];
-     _num_values--;
-     _position++;
-    }
-  return k;
+  return 1; // 1 vector of _sample_size element each
 }
 
 } // namespace oscilloscope

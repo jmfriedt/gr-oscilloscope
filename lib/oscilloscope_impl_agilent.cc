@@ -168,7 +168,7 @@ bool scope_backend_agilent::acquire()
        }
     int offset = _o->_data_buffer[1] - '0';
 #ifdef mydebug
-//    printf("[Agilent] nd=%d size=%d ",nd,_o->_sample_size);fflush(stdout);
+//    printf("[Agilent] size=%d\n",_o->_sample_size);fflush(stdout);
 #endif
     for (int k=0; k<_o->_sample_size; k++) 
      {int16_t s = *(int16_t*)(&_o->_data_buffer[2+offset+2*k]);
