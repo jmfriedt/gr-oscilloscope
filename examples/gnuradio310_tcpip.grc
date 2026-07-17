@@ -53,6 +53,60 @@ blocks:
     coordinate: [160, 8.0]
     rotation: 0
     state: enabled
+- name: blocks_vector_to_stream_0
+  id: blocks_vector_to_stream
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: N
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [224, 136.0]
+    rotation: 0
+    state: enabled
+- name: blocks_vector_to_stream_0_0
+  id: blocks_vector_to_stream
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: N
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [224, 216.0]
+    rotation: 0
+    state: enabled
+- name: blocks_vector_to_stream_0_1
+  id: blocks_vector_to_stream
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_items: N
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [224, 176.0]
+    rotation: 0
+    state: enabled
 - name: oscilloscope_oscilloscope_0
   id: oscilloscope_oscilloscope
   parameters:
@@ -172,14 +226,17 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [192, 144.0]
+    coordinate: [432, 144.0]
     rotation: 0
     state: enabled
 
 connections:
-- [oscilloscope_oscilloscope_0, '0', qtgui_time_sink_x_0, '0']
-- [oscilloscope_oscilloscope_0, '1', qtgui_time_sink_x_0, '1']
-- [oscilloscope_oscilloscope_0, '2', qtgui_time_sink_x_0, '2']
+- [blocks_vector_to_stream_0, '0', qtgui_time_sink_x_0, '0']
+- [blocks_vector_to_stream_0_0, '0', qtgui_time_sink_x_0, '2']
+- [blocks_vector_to_stream_0_1, '0', qtgui_time_sink_x_0, '1']
+- [oscilloscope_oscilloscope_0, '0', blocks_vector_to_stream_0, '0']
+- [oscilloscope_oscilloscope_0, '1', blocks_vector_to_stream_0_1, '0']
+- [oscilloscope_oscilloscope_0, '2', blocks_vector_to_stream_0_0, '0']
 
 metadata:
   file_format: 1
