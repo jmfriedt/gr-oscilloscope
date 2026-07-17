@@ -2,7 +2,7 @@
 
 ## TCP/IP virtual instrument server
 
-The TCP/IP in this directory is compiled with ``make`` to produce
+The TCP/IP server in this directory is compiled with ``make`` to produce
 ``tcp_server``. Launch ``tcp_server`` in a terminal (top-right on the
 screenshot below), and in GNU Radio Companion ``gnuradio310_tcpip.grc`` 
 leading the the following output:
