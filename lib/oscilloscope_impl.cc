@@ -42,7 +42,7 @@ static int count_dots(const char* s)
 oscilloscope_impl::oscilloscope_impl(char* ip, float range, float rate, float duration, int channels, int type)
   : gr::sync_block("oscilloscope",
                    gr::io_signature::make(0, 0, 0),
-                   gr::io_signature::make(1, 4, sizeof(float)))
+                   gr::io_signature::make(1, 4, sizeof(float)*rate*duration))
 { set_type(type);
   set_ip(ip);
   _range    = range;
