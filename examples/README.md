@@ -47,3 +47,24 @@ Tested on the DHO814, setting the IP address by hitting on the bottom left
 Rigol icon of the touchscreen, Utility and Static IP. After setting the static
 IP address and disabling DHCP and Auto IP, **drag the window** up and click
 on "Apply" hidden at the bottom of the menu.
+
+GNU Radio Companion flowchart:
+
+<img src="gnuradio310_xcorr_rigol.png">
+
+Oscilloscope display, with a probe connecting channel1 to the test signal:
+
+<img src="RigolDS0.png">
+
+Screenshot of data collection from the Rigol DHO814 with GNU Radio:
+
+<img src="RigolDS0_scrot.png">
+
+1. At startup, one remote command error message is displayed: although it does not
+prevent acquisition, it should be corrected
+2. When requesting e.g 1 GS/s as advertised on the oscillscope panel, the record duration
+will actually lead to the selection of the most appropriate sampling rate, irrelevant
+of the requested value. In our case, with 10 us the sampling rate was automatically selected
+to 312.5 MS/s instead of the requested 1 GS/s
+3. Data collection sometimes fails, as detected when the first and last sample of channel1
+are equal to 0. In this case, a new trace is collected for display.

@@ -91,6 +91,7 @@ bool scope_backend_agilent::apply_rate(float rate)
 #endif
  if (!_o || !_o->dev) return false;
  _o->_sample_size = (int)(_o->_duration * rate);
+ _o->_rate=rate;
  _o->ensure_buffers();
  sprintf(cmd, ":ACQUIRE:MODE RTIME\n");
  envoi(_o->dev, cmd);
@@ -122,6 +123,7 @@ bool scope_backend_agilent::apply_duration(float dur)
 #endif
  if (!_o || !_o->dev) return false;
  _o->_sample_size = (int)(dur * _o->_rate);
+ _o->_duration=dur;
  _o->ensure_buffers();
  sprintf(cmd, ":TIMEBASE:REFERENCE LEFT\n");
  envoi(_o->dev, cmd);
