@@ -21,10 +21,9 @@ public:
   bool init() override;
   void shutdown() override;
 
-  // Do not modify scope settings
-  bool apply_range(float) override     { return true; }
-  bool apply_rate(float) override      { return true; }
-  bool apply_duration(float) override  { return true; }
+  bool apply_range(float) override;
+  bool apply_rate(float) override;
+  bool apply_duration(float) override;
   bool acquire() override;
 
 private:

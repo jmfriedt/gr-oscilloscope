@@ -19,7 +19,8 @@ channel
 
 ## Agilent oscilloscope
 
-Tested on a DSOS404A:
+Tested on a DSOS404A, with the IP address defined in the MS-Windows Network
+Interface IPv4 configuration menu.
 
 Flowchart, including the cross-correlation in the Fourier domain, emphasizing
 the benefit of the vector output avoiding the ``Stream to Vector`` block before
@@ -39,3 +40,10 @@ Screenshot of the oscilloscope showing how channel 1 is connected to the
 test signal to trigger the acquisitions, while channels 2 and 3 are floating:
 
 <img src="260717_AgilentDSOS404A.jpg">
+
+## Rigol oscilloscope
+
+Tested on the DHO814, setting the IP address by hitting on the bottom left
+Rigol icon of the touchscreen, Utility and Static IP. After setting the static
+IP address and disabling DHCP and Auto IP, **drag the window** up and click
+on "Apply" hidden at the bottom of the menu.
