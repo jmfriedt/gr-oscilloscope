@@ -38,7 +38,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [128, 288.0]
+    coordinate: [128, 304.0]
     rotation: 0
     state: enabled
 - name: duration
@@ -50,7 +50,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [32, 288.0]
+    coordinate: [32, 304.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -74,7 +74,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [32, 360.0]
+    coordinate: [32, 376.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_mag_0
@@ -90,7 +90,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1024, 80.0]
+    coordinate: [920, 96.0]
     rotation: 180
     state: enabled
 - name: blocks_complex_to_mag_0_0
@@ -106,7 +106,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1032, 400.0]
+    coordinate: [928, 416.0]
     rotation: 180
     state: enabled
 - name: blocks_multiply_conjugate_cc_0
@@ -122,7 +122,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 152.0]
+    coordinate: [712, 168.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_conjugate_cc_0_0
@@ -138,7 +138,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 288.0]
+    coordinate: [712, 304.0]
     rotation: 0
     state: enabled
 - name: blocks_vector_to_stream_0
@@ -156,7 +156,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1184, 80.0]
+    coordinate: [1080, 96.0]
     rotation: 180
     state: enabled
 - name: blocks_vector_to_stream_0_0
@@ -174,7 +174,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1192, 400.0]
+    coordinate: [1088, 416.0]
     rotation: 180
     state: enabled
 - name: blocks_vector_to_stream_1
@@ -231,6 +231,65 @@ blocks:
     coordinate: [288, 88.0]
     rotation: 0
     state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\n\
+      \    def __init__(self, vlen=5000):  # args show up as parameters in GRC\n \
+      \       gr.sync_block.__init__(self, name='xcorr interp',   # name in GRC\n\
+      \            in_sig=[(np.complex64,vlen)], out_sig=[])\n    def work(self, input_items,\
+      \ output_items):\n        for k in range(0,len(input_items)) :\n           \
+      \ v=np.abs(input_items[0][k])\n            n=np.argmax(v)\n            ynm1=v[n-1]\n\
+      \            ynp1=v[n+1]\n            yn=v[n]\n            dy=1/2*(ynp1-ynm1)/(2*yn-ynp1-ynm1)\n\
+      \            print(f\"2 {n+dy:.3f}\")\n        return len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\n\
+      \    def __init__(self, vlen=5000):  # args = parameters in GRC\n        gr.sync_block.__init__(self,\
+      \ name='xcorr interp',   # name in GRC\n            in_sig=[(np.complex64,vlen)],\
+      \ out_sig=[])\n    def work(self, input_items, output_items):\n        for k\
+      \ in range(0,len(input_items)) :\n            v=np.abs(input_items[0][k])\n\
+      \            n=np.argmax(v)\n            ynm1=v[n-1]\n            ynp1=v[n+1]\n\
+      \            yn=v[n]\n            dy=1/2*(ynp1-ynm1)/(2*yn-ynp1-ynm1)\n    \
+      \        print(f\"2 {n+dy:.3f}\")\n        return len(input_items[0])"
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '5000'
+  states:
+    _io_cache: ('xcorr interp', 'blk', [('vlen', '5000')], [('0', 'complex', 5000)],
+      [], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1264, 312.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\n\
+      \    def __init__(self, vlen=5000):  # args show up as parameters in GRC\n \
+      \       gr.sync_block.__init__(self, name='xcorr interp',   # name in GRC\n\
+      \            in_sig=[(np.complex64,vlen)], out_sig=[])\n    def work(self, input_items,\
+      \ output_items):\n        for k in range(0,len(input_items)) :\n           \
+      \ v=np.abs(input_items[0][k])\n            n=np.argmax(v)\n            ynm1=v[n-1]\n\
+      \            ynp1=v[n+1]\n            yn=v[n]\n            dy=1/2*(ynp1-ynm1)/(2*yn-ynp1-ynm1)\n\
+      \            print(f\"1 {n+dy:.3f}\")\n        return len(input_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '5000'
+  states:
+    _io_cache: ('xcorr interp', 'blk', [('vlen', '5000')], [('0', 'complex', 5000)],
+      [], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1256, 176.0]
+    rotation: 0
+    state: enabled
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -249,7 +308,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 112.0]
+    coordinate: [328, 128.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_0_0
@@ -270,7 +329,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 232.0]
+    coordinate: [328, 248.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_0_1
@@ -291,7 +350,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [432, 352.0]
+    coordinate: [328, 368.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_1
@@ -312,7 +371,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1008, 128.0]
+    coordinate: [904, 144.0]
     rotation: 0
     state: enabled
 - name: fft_vxx_1_0
@@ -333,7 +392,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1016, 264.0]
+    coordinate: [912, 280.0]
     rotation: 0
     state: enabled
 - name: oscilloscope_oscilloscope_0
@@ -344,14 +403,16 @@ blocks:
     channels: '3'
     comment: 'RTO2034 192.168.1.201
 
-      DSOS404A 192.168.200.11'
+      DSOS404A 192.168.200.11
+
+      DHO814 192.168.40.4'
     duration: duration
-    ip: 192.168.200.11
+    ip: 192.168.1.201
     maxoutbuf: '0'
     minoutbuf: '0'
     range: '1.5'
     rate: samp_rate
-    type: '1'
+    type: '2'
   states:
     bus_sink: false
     bus_source: false
@@ -453,7 +514,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 8.0]
+    coordinate: [496, 16.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_1
@@ -550,7 +611,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [816, 56.0]
+    coordinate: [712, 72.0]
     rotation: 180
     state: enabled
 - name: qtgui_time_sink_x_1_0
@@ -647,7 +708,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [824, 376.0]
+    coordinate: [720, 392.0]
     rotation: 180
     state: enabled
 
@@ -666,7 +727,9 @@ connections:
 - [fft_vxx_0_0, '0', blocks_multiply_conjugate_cc_0, '1']
 - [fft_vxx_0_1, '0', blocks_multiply_conjugate_cc_0_0, '1']
 - [fft_vxx_1, '0', blocks_vector_to_stream_0, '0']
+- [fft_vxx_1, '0', epy_block_0_0, '0']
 - [fft_vxx_1_0, '0', blocks_vector_to_stream_0_0, '0']
+- [fft_vxx_1_0, '0', epy_block_0, '0']
 - [oscilloscope_oscilloscope_0, '0', blocks_vector_to_stream_1, '0']
 - [oscilloscope_oscilloscope_0, '0', fft_vxx_0, '0']
 - [oscilloscope_oscilloscope_0, '1', blocks_vector_to_stream_1_0, '0']

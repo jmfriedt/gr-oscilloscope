@@ -68,3 +68,31 @@ of the requested value. In our case, with 10 us the sampling rate was automatica
 to 312.5 MS/s instead of the requested 1 GS/s
 3. Data collection sometimes fails, as detected when the first and last sample of channel1
 are equal to 0. In this case, a new trace is collected for display.
+
+## Rohde & Schwarz oscilloscope
+
+<img src="gnuradio310_xcorr_RS.png">
+
+<img src="gnuradio310_xcorr_RS_scrot.png">
+
+In order to demonstrate sub-sampling period resolution, a parabolic fit of the cross-correlation
+magnitude is implemented. Recording the cross-correlation peak position after oversampling led to
+the file ``gnuradio310_xcorr_RS.txt`` processed using <a href="gnuradio310_xcorr_RS.m">gnuradio310_xcorr_RS.m</a>
+whose output is:
+
+```
+m1 = 35.159
+ans = 4.2151e-03
+m2 = 25.160
+ans = 2.3069e-03
+ans = 1.9997
+ans = 7.0317
+ans = 5.0320
+```
+meaning that the mean value of the first correlation peak is $25160\pm 2.3$ ps and the second is  $35159\pm 4.2$ ps 
+translated to a length, assuming a speed of light of 0.2 m/ns in RG-58 coaxial cable, to 5.032 m and 7.032 m total
+length (4 ps is 0.8 mm uncertainty in the cable) matching the assembly of one 5-m long RG-58 cable followed by one
+2-m long cable.
+
+## Tektronix oscilloscope
+

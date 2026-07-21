@@ -93,7 +93,7 @@ bool scope_backend_rohdeschwarz::acquire()
  envoi(_o->dev, "*OPC?\n");
  relit(_o->dev, tmp, sizeof(tmp));
  const int want = 2 * _o->_sample_size + 100; // Expected size: binary + header
- for (int chan = 1; chan <= _o->_channels; chan++) 
+ for (int chan = 1; chan <= _o->_channels; chan++)
    {sprintf(cmd, "CHAN%d:WAV:DATA?\n", chan);
     vxi11_send_and_receive(_o->dev, (char*)cmd, _o->_data_buffer, want, 100 * VXI11_READ_TIMEOUT);
     if (_o->_data_buffer[0] != '#') {

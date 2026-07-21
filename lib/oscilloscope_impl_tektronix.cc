@@ -132,16 +132,16 @@ bool scope_backend_tektronix::acquire()
  write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
  sprintf(buffer, "ACQUIRE:STATE RUN\n");
  write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
- sprintf(buffer, "*OPC?\n"); 
+ sprintf(buffer, "*OPC?\n");
  write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
  memset(buffer, 0, sizeof(buffer));
  read(_o->sockfd, buffer, sizeof(buffer));
  int nr_pt = tek_query_int(_o->sockfd, "HORIZONTAL:RECORDLENGTH?\n");
- if (nr_pt <= 0) nr_pt = _o->_sample_size;
- if (nr_pt > _o->_sample_size) {
-    _o->_sample_size = nr_pt;
-    _o->ensure_buffers();
-  }
+ if (nr_pt <= 0) {nr_pt = _o->_sample_size;printf("NR < 0 !");fflush(stdout);}
+// if (nr_pt > _o->_sample_size) {
+//    _o->_sample_size = nr_pt;
+//    _o->ensure_buffers();
+//  }
  for (int chan = 1; chan <= _o->_channels; chan++)
    {sprintf(buffer, "DATA:SOURCE CH%d\n", chan);
     write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
@@ -155,9 +155,9 @@ bool scope_backend_tektronix::acquire()
     ymult = ymult / 1000000.0f;
     sprintf(buffer, "DATA:START 1\n");
     write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
-    sprintf(buffer, "DATA:STOP %d\n", nr_pt); 
+    sprintf(buffer, "DATA:STOP %d\n", nr_pt);
     write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
-    sprintf(buffer, "CURVE?\n");  
+    sprintf(buffer, "CURVE?\n");
     write(_o->sockfd, buffer, strlen(buffer)); usleep(50000);
     char h[16]; // SCPI binary block header
     if (relit(_o->sockfd, h, 2) != 2 || h[0] != '#') return false;
@@ -173,7 +173,7 @@ bool scope_backend_tektronix::acquire()
        }
 
     if (relit(_o->sockfd, _o->_data_buffer, data_bytes) != data_bytes) return false;
-    char nl; 
+    char nl;
     read(_o->sockfd, &nl, 1); // trailing newline
     const unsigned char* u8 = (const unsigned char*)_o->_data_buffer;
     long kmax = std::min((long)nr_pt, (long)_o->_sample_size);

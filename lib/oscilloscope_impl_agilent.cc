@@ -32,7 +32,7 @@ void scope_backend_agilent::envoi(VXI11_CLINK* clink, const char* s)
 
 bool scope_backend_agilent::init()
 {char* device_name = nullptr;
- char b[256];       // Right Click on sine wave on top of display, Setup Acquisition 
+ char b[256];       // Right Click on sine wave on top of display, Setup Acquisition
                     //             and see SamplingRate/MemDepth
  _o->dev = nullptr; // "169.254.202.240" for Agilent 54855DSO
  if (vxi11_open_device(&_o->dev, _o->_device_ip, device_name) != 0)
@@ -58,7 +58,7 @@ void scope_backend_agilent::shutdown()
 {char cmd[256];
  if (!_o || !_o->dev) return;
  for (int c=1;c<=_o->_channels;c++)
-   {sprintf(cmd,":CHANNEL%d:DISPLAY ON\n",c); 
+   {sprintf(cmd,":CHANNEL%d:DISPLAY ON\n",c);
     envoi(_o->dev, cmd);
    }
  envoi(_o->dev, ":TRIGGER:SWEEP AUTO\n");
@@ -164,15 +164,15 @@ bool scope_backend_agilent::acquire()
 #ifdef mydebug
 //    printf("[Agilent] measurement request\n");fflush(stdout);
 #endif
-    if (_o->_data_buffer[0] != '#') 
+    if (_o->_data_buffer[0] != '#')
        {printf("[Agilent] error in trace header (CH%d)\n",c); fflush(stdout);
-        return false; 
+        return false;
        }
     int offset = _o->_data_buffer[1] - '0';
 #ifdef mydebug
 //    printf("[Agilent] size=%d\n",_o->_sample_size);fflush(stdout);
 #endif
-    for (int k=0; k<_o->_sample_size; k++) 
+    for (int k=0; k<_o->_sample_size; k++)
      {int16_t s = *(int16_t*)(&_o->_data_buffer[2+offset+2*k]);
 #ifdef mydebug
 //      if (k<10) {printf(" %f ",(float)s/32768.);fflush(stdout);}
