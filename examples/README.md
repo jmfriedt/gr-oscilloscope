@@ -94,5 +94,7 @@ translated to a length, assuming a speed of light of 0.2 m/ns in RG-58 coaxial c
 length (4 ps is 0.8 mm uncertainty in the cable) matching the assembly of one 5-m long RG-58 cable followed by one
 2-m long cable.
 
+<img src="IMG_20260721_073718_070small.jpg">
+
 ## Tektronix oscilloscope
 
