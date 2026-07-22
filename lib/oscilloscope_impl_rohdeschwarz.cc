@@ -69,6 +69,9 @@ bool scope_backend_rohdeschwarz::apply_range(float range)
 
 bool scope_backend_rohdeschwarz::apply_rate(float rate)
 {if (!_o || !_o->dev) return false;
+ _o->_sample_size = (int)(_o->_duration * rate);
+ _o->_rate=rate;
+ _o->ensure_buffers();
  char buf[128];
  sprintf(buf, "ACQ:SRATE %f\n", rate);
  envoi(_o->dev, buf);
@@ -78,6 +81,9 @@ bool scope_backend_rohdeschwarz::apply_rate(float rate)
 bool scope_backend_rohdeschwarz::apply_duration(float dur)
 {char buf[128];
  if (!_o || !_o->dev) return false;
+ _o->_sample_size = (int)(dur * _o->_rate);
+ _o->_duration=dur;
+ _o->ensure_buffers();
  sprintf(buf, "TIM:RANGE %f\n", dur);
  envoi(_o->dev, buf);
  return true;

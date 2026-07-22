@@ -45,8 +45,8 @@ parameters:
   label: Oscilloscope Type
   dtype: int
   default: 0
-  options: [0, 1, 2, 3, 4]
-  option_labels: ["TCP/IP","Agilent","Rohde & Schwarz","Tektronix","Rigol"]
+  options: [0, 1, 2, 3, 4, 5]
+  option_labels: ["TCP/IP","Agilent","Rohde & Schwarz","Tektronix","Rigol","LeCroy"]
 
 outputs:
 - label: out

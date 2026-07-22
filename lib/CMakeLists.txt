@@ -19,6 +19,7 @@ list(APPEND oscilloscope_sources
     oscilloscope_factory.cc
     oscilloscope_impl_agilent.cc
     oscilloscope_impl_rigol.cc
+    oscilloscope_impl_lecroy.cc
     oscilloscope_impl_rohdeschwarz.cc
     oscilloscope_impl_tektronix.cc
     oscilloscope_impl_tcpip.cc

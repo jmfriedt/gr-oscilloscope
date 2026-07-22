@@ -77,7 +77,6 @@ public:
   void set_duration(float d);
 
   int  type() const     { return _type; }
-  bool is_vxi11() const { return _vxi11 == 1; }
 
   /*
    * Backend-shared resources.
@@ -108,7 +107,6 @@ public:
   int _num_values = 0;
   int _position   = 0;
 
-  char _vxi11 = 0;
   int  _type  = SCOPE_TEKTRONIX;
 
   // Rigol-specific state

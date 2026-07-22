@@ -71,7 +71,7 @@ bool scope_backend_tcpip::apply_duration(float dur)
 }
 
 bool scope_backend_tcpip::acquire()
-{int val=htonl(_o->_sample_size);  // TCP server knows how many channels are requested
+{long val=htonl(_o->_sample_size);  // TCP server knows how many channels are requested
  if (_o->sockfd < 0) return false;
 #ifdef mydebug
  printf("%d items requested\n",_o->_sample_size);

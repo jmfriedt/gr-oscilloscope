@@ -81,7 +81,6 @@ void oscilloscope_impl::ensure_buffers()
 
 void oscilloscope_impl::set_type(int t)
 {_type  = t;
- _vxi11 = (t == SCOPE_RIGOL || t == SCOPE_AGILENT || t == SCOPE_ROHDE_SCHWARZ);
 }
 
 void oscilloscope_impl::set_ip(char* ip)

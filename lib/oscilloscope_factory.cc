@@ -15,6 +15,7 @@
 #include "oscilloscope_impl_rigol.h"
 #include "oscilloscope_impl_agilent.h"
 #include "oscilloscope_impl_rohdeschwarz.h"
+#include "oscilloscope_impl_lecroy.h"
 
 namespace gr {
 namespace oscilloscope {
@@ -31,6 +32,8 @@ std::unique_ptr<scope_backend> make_backend(int type, oscilloscope_impl* owner)
       return std::make_unique<scope_backend_agilent>(owner);
    case SCOPE_ROHDE_SCHWARZ:
       return std::make_unique<scope_backend_rohdeschwarz>(owner);
+   case SCOPE_LECROY:
+      return std::make_unique<scope_backend_lecroy>(owner);
    default:
       return nullptr;
   }

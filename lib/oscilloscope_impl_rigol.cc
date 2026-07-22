@@ -114,7 +114,7 @@ bool scope_backend_rigol::apply_duration(float dur)
  _o->_sample_size = (int)(dur * _o->_rate);
  _o->_duration=dur;
  _o->ensure_buffers();
- sprintf(cmd, ":TIM:HREF LB\n");
+ sprintf(cmd, ":TIM:HREF:MODE LB\n");          // Left Border
  envoi(_o->dev, cmd);
  sprintf(cmd, ":TIM:HREF:POS 0\n");
  envoi(_o->dev, cmd);
@@ -198,7 +198,6 @@ bool scope_backend_rigol::acquire()
         if (chan == 3) _o->_tab3[k] = v;
         if (chan == 4) _o->_tab4[k] = v;
       }
-  
       for (int k = ln; k < _o->_sample_size; k++) {
         if (chan == 1) _o->_tab1[k] = 0.0f;
         if (chan == 2) _o->_tab2[k] = 0.0f;
