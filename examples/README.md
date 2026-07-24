@@ -96,5 +96,26 @@ length (4 ps is 0.8 mm uncertainty in the cable) matching the assembly of one 5-
 
 <img src="IMG_20260721_073718_070small.jpg">
 
+## LeCroy oscilloscope
+
+Recent (e.g. WaveRunner 625Zi) LeCroy oscilloscopes support VXI11/SCPI mode, see 
+Utilities -> Remote -> LXI (VXI11) instead of TCPIP (VICP).
+
+The 625Zi oscilloscope was tested with the LeCroy compatibility mode. However **setting the 
+sampling rate and duration** are not implemented, only the user settings are kept for these
+parameters (voltage range configuration is working).
+
+**TODO**: set sampling rate and measurement duration (instead of the number of samples as product
+of these two quantities).
+
+Oscilloscope screen capture:
+
+<img src="LeCroy_scope.png">
+
+GNU Radio gr-oscilloscope screen capture when probing the test signal on channel 1, with
+channels 2 and 3 left floating:
+
+<img src="LeCroy_scrot.png">
+
 ## Tektronix oscilloscope
 
