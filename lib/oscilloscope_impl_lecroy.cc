@@ -10,9 +10,7 @@
 #include <cstring>
 #include <locale.h>
 
-#define mydebug
-
-#define	MAX_ST	(1512000*2)	/* maximum message string. no picked from thin air */
+//#define mydebug
 
 namespace gr {
 namespace oscilloscope {
@@ -67,6 +65,7 @@ bool scope_backend_lecroy::apply_range(float range)
   return true;
 }
 
+// NOT WORKING: unable to set sampling rate
 bool scope_backend_lecroy::apply_rate(float rate)
 {char buf[128];
  if (!_o || !_o->dev) return false;
@@ -80,18 +79,17 @@ bool scope_backend_lecroy::apply_rate(float rate)
  relit(_o->dev,buf,256);
  printf("[LeCroy] MSIZ: %s\n",buf);
 #endif
-/*
- sprintf(buf, "VBS 'app.Acquisition.Horizontal.SamplingRate = %f'\n", rate);
- envoi(_o->dev, buf);
+ //sprintf(buf, "VBS 'app.Acquisition.Horizontal.SamplingRate = %f'\n", rate);
+ //envoi(_o->dev, buf);
 #ifdef mydebug
  envoi(_o->dev, "VBS? 'return = app.Acquisition.Horizontal.SamplingRate\n'");
  relit(_o->dev,buf,256);
  printf("[LeCroy] FREQ: %s vs %f\n",buf,rate);
 #endif
-*/
  return true;
 }
 
+// NOT WORKING: unable to set sampling duration
 bool scope_backend_lecroy::apply_duration(float dur)
 {char buf[128];
  if (!_o || !_o->dev) return false;
@@ -100,10 +98,15 @@ bool scope_backend_lecroy::apply_duration(float dur)
  _o->ensure_buffers();
  sprintf(buf, "MSIZ %d\n", _o->_sample_size*2);
  envoi(_o->dev, buf);
+// sprintf(buf, "TDIV %fS\n", dur/10.);
+// envoi(_o->dev, buf);
 #ifdef mydebug
  sprintf(buf,"MSIZ?\n");envoi(_o->dev,buf);
  relit(_o->dev,buf,256);
  printf("[LeCroy] MSIZ: %s\n",buf);
+ sprintf(buf,"TDIV?\n");envoi(_o->dev,buf);
+ relit(_o->dev,buf,256);
+ printf("[LeCroy] TDIV: %s vs %f\n",buf,dur);
 #endif
 /*
  sprintf(buf, "VBS 'app.Acquisition.Horizontal.HorScale = %f'\n", dur/10.);
