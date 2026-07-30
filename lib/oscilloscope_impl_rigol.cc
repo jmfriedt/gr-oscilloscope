@@ -16,7 +16,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-//#define mydebug 1
+// #define mydebug 1
 
 namespace gr {
 namespace oscilloscope {
@@ -43,10 +43,9 @@ bool scope_backend_rigol::init()
  envoi(_o->dev, "*IDN?");
  relit(_o->dev, b, sizeof(b));
  printf("[rigol] IDN: %s\n", b); fflush(stdout);
- envoi(_o->dev, "*CLS");
- envoi(_o->dev, ":WAV:FORM BYTE\n");usleep(5000);
- envoi(_o->dev, ":WAV:MODE RAW\n");usleep(5000);
- envoi(_o->dev, ":WAV:POIN RAW\n");usleep(5000);
+ envoi(_o->dev, "*CLS");                           // OK
+ envoi(_o->dev, ":WAV:FORM BYTE\n");usleep(5000);  // OK
+ envoi(_o->dev, ":WAV:MODE RAW\n");usleep(5000);   // OK
  return true;
 }
 
@@ -62,12 +61,12 @@ bool scope_backend_rigol::apply_range(float range)
  bzero(buf,256);
 #endif
  for (int c=1;c<=_o->_channels;c++)
-   {sprintf(cmd, ":CHANNEL%d:DISP ON\n", c);
+   {sprintf(cmd, ":CHANNEL%d:DISP ON\n", c);     // OK
     envoi(_o->dev, cmd);
-    sprintf(cmd, ":CHANNEL%d:SCAL %e;OFFSET 0.0\n", c, range/10);
+    sprintf(cmd, ":CHANNEL%d:SCAL %e;OFFSET 0.0\n", c, range/10); // OK
     envoi(_o->dev, cmd);
 #ifdef mydebug
-    sprintf(cmd, ":CHANNEL%d:SCAL?\n", c);
+    sprintf(cmd, ":CHANNEL%d:SCAL?\n", c);       // OK
     vxi11_send_and_receive(_o->dev, cmd, buf, 256, 100 * VXI11_READ_TIMEOUT);
     printf("[rigol] range %e -> %s", range, buf);
 #endif
@@ -85,19 +84,28 @@ bool scope_backend_rigol::apply_rate(float rate)
  _o->_sample_size = (int)(_o->_duration * rate);
  _o->_rate=rate;
  _o->ensure_buffers();
- sprintf(cmd, ":ACQ:TYPE NORMAL\n"); // no average
+ sprintf(cmd, ":ACQ:TYPE NORMAL\n"); // no average OK
  envoi(_o->dev, cmd);
- sprintf(cmd, ":ACQ:SRATE %f\n", rate);
- envoi(_o->dev, cmd);
+// sprintf(cmd, ":ACQ:SRATE %f\n", rate); // cannot be set, only query
+// envoi(_o->dev, cmd);
 #ifdef mydebug
- sprintf(cmd, ":ACQ:SRATE?\n");
+ sprintf(cmd, ":ACQ:SRATE?\n");      // OK
  vxi11_send_and_receive(_o->dev, cmd, buf, 256, 100 * VXI11_READ_TIMEOUT);
- printf("[rigol] rate %e -> %s", rate, buf);
+ printf("[rigol] rate %e -> %s/div", rate, buf);
 #endif
- sprintf(cmd, ":ACQ:MDEP %d\n", _o->_sample_size);
+ long mdep=50000000;
+ if (_o->_sample_size < 25000000) mdep=25000000;
+ if (_o->_sample_size < 10000000) mdep=10000000;
+ if (_o->_sample_size < 5000000) mdep=5000000;
+ if (_o->_sample_size < 1000000) mdep=1000000;
+ if (_o->_sample_size < 100000) mdep=100000;
+ if (_o->_sample_size < 10000) mdep=10000;
+ if (_o->_sample_size < 1000) mdep=1000;
+ sprintf(cmd, ":ACQ:MDEP %ld\n", mdep); // must be one of the possible values only
  envoi(_o->dev, cmd);
+ printf("ERROR IN %s\n",cmd);
 #ifdef mydebug
- sprintf(cmd, ":ACQ:MDEP?\n");
+ sprintf(cmd, ":ACQ:MDEP?\n");       // OK
  vxi11_send_and_receive(_o->dev, cmd, buf, 256, 100 * VXI11_READ_TIMEOUT);
  printf("[rigol] memory depth %d -> %s",_o->_sample_size, buf);fflush(stdout);
 #endif
@@ -114,18 +122,19 @@ bool scope_backend_rigol::apply_duration(float dur)
  _o->_sample_size = (int)(dur * _o->_rate);
  _o->_duration=dur;
  _o->ensure_buffers();
- sprintf(cmd, ":TIM:HREF:MODE LB\n");          // Left Border
+ envoi(_o->dev, ":TIM:MODE MAIN\n");usleep(5000);   // OK
+ sprintf(cmd, ":TIM:HREF:MODE LB\n");          // Left Border OK
  envoi(_o->dev, cmd);
- sprintf(cmd, ":TIM:HREF:POS 0\n");
+ sprintf(cmd, ":TIM:HREF:POS 0\n");            // OK
  envoi(_o->dev, cmd);
- sprintf(cmd, ":TIMEBASE:SCAL %e\n", dur/10.); // 10 divisions
+ sprintf(cmd, ":TIMEBASE:SCAL %e\n", dur/10.); // 10 divisions OK
  envoi(_o->dev, cmd);
 #ifdef mydebug
- sprintf(cmd, ":TIMEBASE:SCAL?");
+ sprintf(cmd, ":TIMEBASE:SCAL?");              // OK
  vxi11_send_and_receive(_o->dev, cmd, buf, 256, 100 * VXI11_READ_TIMEOUT);
  printf("[rigol] duration %e -> %s",dur,buf);
  bzero(buf,256);
- sprintf(cmd, ":ACQ:MDEP?\n");
+ sprintf(cmd, ":ACQ:MDEP?\n");                 // OK
  vxi11_send_and_receive(_o->dev, cmd, buf, 256, 100 * VXI11_READ_TIMEOUT);
  printf("[rigol] size %d -> %s",_o->_sample_size, buf);fflush(stdout);
 #endif
