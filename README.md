@@ -61,8 +61,4 @@ Update to the Python bindings when modifying the C++ ``include/`` content:
 gr_modtool bind oscilloscope
 ```
 
-## TODO
-
-Add Sigrok (<a href="https://sigrok.org/wiki/Libsigrok">libsigrok</a>) support?
-
 This development was featured on rtl-sdr.com at https://www.rtl-sdr.com/gr-oscilloscope-using-an-oscilloscope-as-a-software-defined-radio/
