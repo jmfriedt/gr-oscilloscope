@@ -17,7 +17,8 @@ enum scope_type_t : int
   SCOPE_ROHDE_SCHWARZ = 2,
   SCOPE_TEKTRONIX     = 3,
   SCOPE_RIGOL         = 4,
-  SCOPE_LECROY        = 5
+  SCOPE_LECROY        = 5,
+  SCOPE_SIGLENT       = 6
 };
 
 } // namespace oscilloscope

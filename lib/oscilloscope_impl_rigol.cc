@@ -101,7 +101,7 @@ bool scope_backend_rigol::apply_rate(float rate)
  if (_o->_sample_size < 100000) mdep=100000;
  if (_o->_sample_size < 10000) mdep=10000;
  if (_o->_sample_size < 1000) mdep=1000;
- sprintf(cmd, ":ACQ:MDEP %ld\n", mdep); // must be one of the possible values only
+ sprintf(cmd, ":ACQ:MDEP %ld\n", mdep); // must be one of the possible values only => OK
  envoi(_o->dev, cmd);
  printf("ERROR IN %s\n",cmd);
 #ifdef mydebug
